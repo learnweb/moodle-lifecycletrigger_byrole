@@ -37,6 +37,9 @@ class lost implements base {
      * @return trigger_response
      */
     public function check_course($course) {
+        global $CFG;
+        $delay = $CFG->cleanupcoursestrigger_lost_delay;
+        $roles = $CFG->cleanupcoursestrigger_lost_roles;
         return trigger_response::next();
     }
 }
