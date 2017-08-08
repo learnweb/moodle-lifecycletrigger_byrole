@@ -33,9 +33,9 @@ $settings->add(new admin_setting_configduration('cleanupcoursestrigger_lost_dela
     get_string('delay', 'cleanupcoursestrigger_lost'), 2419200));
 $roles = get_all_roles();
 $choices = array();
-foreach($roles as $role) {
-    $choices[$role->shortname]=$role->shortname;
+foreach ($roles as $role) {
+    $choices[$role->shortname] = $role->shortname;
 }
-//$name, $visiblename, $description, $defaultsetting, $choices
-$settings->add(new admin_setting_configmulticheckbox('cleanupcoursestrigger_lost_roles', get_string('responsibleroles', 'cleanupcoursestrigger_lost'),
-    get_string('explanationroles', 'cleanupcoursestrigger_lost'), array('teacher' => 'teacher'), $choices));
+$settings->add(new admin_setting_configmulticheckbox('cleanupcoursestrigger_lost_roles', get_string('responsibleroles',
+    'cleanupcoursestrigger_lost'), get_string('explanationroles', 'cleanupcoursestrigger_lost'),
+    array('teacher' => 'teacher'), $choices));

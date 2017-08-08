@@ -12,7 +12,7 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.use tool_cleanupcourses\manager\trigger_manager;
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
  * Uninstall script for course cleanup subplugin
  *
