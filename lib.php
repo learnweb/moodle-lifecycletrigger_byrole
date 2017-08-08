@@ -31,7 +31,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../lib.php');
 
 
-class abandoned implements base {
+class lost implements base {
     /**
      * Checks the course and returns a response, which tells if the course should be further processed.
      * @param $course object to be processed.

@@ -17,12 +17,12 @@
  * Install script for course cleanup subplugin
  *
  * @package tool_cleanupcourses_trigger
- * @subpackage abandoned
+ * @subpackage lost
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
 
-function xmldb_cleanupcoursestrigger_abandoned_install() {
-trigger_manager::register('abandoned');
+function xmldb_cleanupcoursestrigger_lost_install() {
+trigger_manager::register('lost');
 }
