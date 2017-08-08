@@ -12,19 +12,30 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.use tool_cleanupcourses\manager\trigger_manager;
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * Install script for course cleanup subplugin
+ * Settings for lost
  *
  * @package tool_cleanupcourses_trigger
  * @subpackage lost
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-use tool_cleanupcourses\manager\trigger_manager;
 
 defined('MOODLE_INTERNAL') || die();
 
-function xmldb_cleanupcoursestrigger_lost_install() {
-    trigger_manager::register('lost');
+require_once(__DIR__ . '/lib.php');
+
+// Time until a abandoned course is deleted default is 4 weeks.
+$settings->add(new admin_setting_configduration('cleanupcoursestrigger_lost_delay',
+    get_string('delay', 'cleanupcoursestrigger_lost'),
+    get_string('delay', 'cleanupcoursestrigger_lost'), 2419200));
+$roles = get_all_roles();
+$choices = array();
+foreach($roles as $role) {
+    $choices[$role->shortname]=$role->shortname;
 }
+//$name, $visiblename, $description, $defaultsetting, $choices
+$settings->add(new admin_setting_configmulticheckbox('cleanupcoursestrigger_lost_roles', get_string('responsibleroles', 'cleanupcoursestrigger_lost'),
+    get_string('explanationroles', 'cleanupcoursestrigger_lost'), array('teacher' => 'teacher'), $choices));

@@ -25,7 +25,6 @@
 namespace tool_cleanupcourses\trigger;
 
 use tool_cleanupcourses\response\trigger_response;
-use tool_cleanupcourses\manager\delayed_courses_manager;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../lib.php');

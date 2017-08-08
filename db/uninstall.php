@@ -26,5 +26,5 @@ use tool_cleanupcourses\manager\trigger_manager;
 defined('MOODLE_INTERNAL') || die();
 
 function xmldb_cleanupcoursestrigger_lost_uninstall() {
-trigger_manager::deregister('lost');
+    trigger_manager::deregister('lost');
 }

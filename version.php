@@ -25,6 +25,6 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version  = 2017080800;
+$plugin->version  = 2017080801;
 $plugin->requires = 2017051501;
 $plugin->component = 'cleanupcoursestrigger_lost';
