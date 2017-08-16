@@ -17,7 +17,7 @@
  * Uninstall script for course cleanup subplugin
  *
  * @package tool_cleanupcourses_trigger
- * @subpackage lost
+ * @subpackage byrole
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,6 +25,6 @@ use tool_cleanupcourses\manager\trigger_manager;
 
 defined('MOODLE_INTERNAL') || die();
 
-function xmldb_cleanupcoursestrigger_lost_uninstall() {
-    trigger_manager::deregister('lost');
+function xmldb_cleanupcoursestrigger_byrole_uninstall() {
+    trigger_manager::deregister('byrole');
 }

@@ -18,13 +18,13 @@
  * Cleanup Courses Site Course Trigger
  *
  * @package tool_cleanupcourses_trigger
- * @subpackage lost
+ * @subpackage byrole
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version  = 2017080801;
+$plugin->version  = 2017081601;
 $plugin->requires = 2017051501;
-$plugin->component = 'cleanupcoursestrigger_lost';
+$plugin->component = 'cleanupcoursestrigger_byrole';

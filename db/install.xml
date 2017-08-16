@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="admin/tool/cleanupcourses/trigger/lost/db" VERSION="2017080800" COMMENT="XMLDB file for Moodle cleanupcourses_trigger/lost"
+<XMLDB PATH="admin/tool/cleanupcourses/trigger/byrole/db" VERSION="2017080800" COMMENT="XMLDB file for Moodle cleanupcourses_trigger/byrole"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
     <TABLES>
-        <TABLE NAME="cleanupcoursestrigger_lost" COMMENT="table containing all mails which still have to be sent">
+        <TABLE NAME="cleanupcoursestrigger_byrole" COMMENT="table containing all mails which still have to be sent">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="id of the course"/>
                 <FIELD NAME="timestamp" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="timestamp when course was firstly recognized as abandoned"/>

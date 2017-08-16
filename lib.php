@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../lib.php');
 
 
-class lost implements base {
+class byrole implements base {
     /**
      * Checks the course and returns a response, which tells if the course should be further processed.
      * @param $course object to be processed.
@@ -38,8 +38,8 @@ class lost implements base {
      */
     public function check_course($course) {
         global $CFG;
-        $delay = $CFG->cleanupcoursestrigger_lost_delay;
-        $roles = $CFG->cleanupcoursestrigger_lost_roles;
+        $delay = $CFG->cleanupcoursestrigger_byrole_delay;
+        $roles = $CFG->cleanupcoursestrigger_byrole_roles;
         return trigger_response::next();
     }
 }
