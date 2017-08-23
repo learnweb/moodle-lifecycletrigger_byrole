@@ -49,6 +49,34 @@ class cleanupcoursestrigger_byrole_generator extends testing_data_generator {
 
         $data['validcourse'] = $validcourse;
 
+        // Create a course without valid role.
+        $norolecourse = $generator->create_course(array('name' => 'norolecourse'));
+
+        $data['norolecourse'] = $norolecourse;
+
+        // Create a already in table without valid role and old.
+        $norolefoundcourse = $generator->create_course(array('name' => 'norolefoundcourse'));
+        $user3 = $generator->create_user();
+        $data['user3'] = $user3;
+        $generator->enrol_user($user3->id, $norolefoundcourse->id, 5);
+        // Writhes course in table and enrol one student.
+        $dataobject = new \stdClass();
+        $dataobject->id = $norolefoundcourse->id;
+        $dataobject->timestamp = time() - 31536000;
+        $DB->insert_record_raw('cleanupcoursestrigger_byrole', $dataobject, true, false, true);
+        $data['norolefoundcourse'] = $norolefoundcourse;
+
+        // Create a already in table with valid role and old.
+        $rolefoundagain = $generator->create_course(array('name' => 'rolefoundagain'));
+        $user4 = $generator->create_user();
+        $data['user4'] = $user4;
+        // Writhes course in table and enrol one teacher.
+        $generator->enrol_user($user4->id, $rolefoundagain->id, 4);
+        $dataobject = new \stdClass();
+        $dataobject->id = $rolefoundagain->id;
+        $dataobject->timestamp = time() - 31536000;
+        $DB->insert_record_raw('cleanupcoursestrigger_byrole', $dataobject, true, false, true);
+        $data['rolefoundagain'] = $rolefoundagain;
         return $data;
     }
 

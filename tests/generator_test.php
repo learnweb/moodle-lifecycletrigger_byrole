@@ -13,18 +13,34 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
- * Cleanup Courses Site Course Trigger
+ * PHPUnit data generator tests
  *
- * @package tool_cleanupcourses_trigger
- * @subpackage byrole
- * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
+ * @package    block_groups
+ * @category   phpunit
+ * @copyright  2016 Nina Herrmann
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2017081604;
-$plugin->requires = 2017051501;
-$plugin->component = 'cleanupcoursestrigger_byrole';
+
+/**
+ * PHPUnit data generator testcase
+ *
+ * @package    block_groups
+ * @category   phpunit
+ * @copyright  2016 Nina Herrmann
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class cleanupcoursestrigger_byrole_generator_testcase extends advanced_testcase {
+    public function test_generator() {
+        global $DB;
+        $this->resetAfterTest(true);
+
+        /** @var block_online_users_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('block_groups');
+
+        $generator->create_instance();
+    }
+}

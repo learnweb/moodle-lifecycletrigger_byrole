@@ -77,6 +77,7 @@ class byrole implements base {
     /**
      * Return the roles that were set in the config.
      * @return array|null
+     * @throws \coding_exception
      */
     private function get_roles() {
         global $CFG;
@@ -84,7 +85,11 @@ class byrole implements base {
         static $roles = null;
         if ($roles === null) {
             $roles = $CFG->cleanupcoursestrigger_byrole_roles;
-            $roles = explode(",", $roles);
+            if ($roles === "") {
+                throw new \coding_exception('No Roles defined');
+            } else {
+                $roles = explode(",", $roles);
+            }
         }
         return $roles;
     }
@@ -103,12 +108,11 @@ class byrole implements base {
     private function handle_course($hasrole, $courseid) {
         global $DB, $CFG;
         $intable = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $courseid));
-
         if ($intable === false && $hasrole === false) {
             $dataobject = new \stdClass();
             $dataobject->id = $courseid;
             $dataobject->timestamp = time();
-            $DB->insert_record('cleanupcoursestrigger_byrole', $dataobject);
+            $DB->insert_record_raw('cleanupcoursestrigger_byrole', $dataobject, true, false, true);
             return false;
         } else if ($intable === true) {
             if ($hasrole) {
