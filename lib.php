@@ -43,9 +43,9 @@ class byrole implements base {
      */
     public function check_course($course) {
         // Checks whether role is represented in course.
-        $hasrole = $this->check_course_has_role($course->id);
+        $hasuserincharge = $this->check_course_has_role($course->id);
 
-        $trigger = $this->handle_course($hasrole, $course->id);
+        $trigger = $this->handle_course($hasuserincharge, $course->id);
         if ($trigger) {
             return trigger_response::trigger();
         }
@@ -98,33 +98,33 @@ class byrole implements base {
     /**
      * Handles the current course
      * There are three cases:
-     * 1. the course has no role and no entry in the table the course should be inserted in the table,
+     * 1. the course has no responsible user and no entry in the table the course should be inserted in the table,
      * 2. the course has an entry in the table but has a responsible person, the course should be deleted from the table,
      * 3. the course does not have a responsible person and is already in the table, it has to be checked how long
      * the course is in the table and when the period of time is exceeded the course is marked as to delete.
      * In case the course is not in the table and has a responsible person nothing has to be done.
-     * @param $hasrole
-     * @param $courseid
-     * @return bool
+     * @param $hasuserincharge boolean
+     * @param $courseid integer
+     * @return boolean
      */
-    private function handle_course($hasrole, $courseid) {
+    private function handle_course($hasuserincharge, $courseid) {
         global $DB;
         $intable = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $courseid));
         // First case of function description.
-        if ($intable === false && $hasrole === false) {
+        if ($intable === false && $hasuserincharge === false) {
             $dataobject = new \stdClass();
             $dataobject->id = $courseid;
             $dataobject->timestamp = time();
             $DB->insert_record_raw('cleanupcoursestrigger_byrole', $dataobject, true, false, true);
             return false;
             // Second case of function description.
-        } else if ($intable && $hasrole) {
+        } else if ($intable && $hasuserincharge) {
             // Second case of function description.
 
             $DB->delete_records('cleanupcoursestrigger_byrole', array('id' => $courseid));
             return false;
             // Third case of the function description.
-        } else if ($intable && !$hasrole){
+        } else if ($intable && !$hasuserincharge) {
             $delay = get_config('cleanupcoursestrigger_byrole', 'delay');
             $timecreated = $DB->get_record('cleanupcoursestrigger_byrole', array('id' => $courseid), 'timestamp');
             $now = time();
