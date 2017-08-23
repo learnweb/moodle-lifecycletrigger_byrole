@@ -67,18 +67,18 @@ class cleanupcoursestrigger_byrole_generator extends testing_data_generator {
         $norolefoundcourse = $generator->create_course(array('name' => 'norolefoundcourse'));
         $generator->enrol_user($user3->id, $norolefoundcourse->id, 5);
         $dataobject = new \stdClass();
-        $dataobject->id = $norolefoundcourse->id;
+        $dataobject->courseid = $norolefoundcourse->id;
         $dataobject->timestamp = time() - 31536000;
-        $DB->insert_record_raw('cleanupcoursestrigger_byrole', $dataobject, true, false, true);
+        $DB->insert_record('cleanupcoursestrigger_byrole', $dataobject);
         $data['norolefoundcourse'] = $norolefoundcourse;
 
         // Create a course already marked for deletion with one student and really old.
         $norolefoundcourse2 = $generator->create_course(array('name' => 'norolefoundcourse2'));
         $generator->enrol_user($user3->id, $norolefoundcourse2->id, 5);
         $dataobject = new \stdClass();
-        $dataobject->id = $norolefoundcourse2->id;
+        $dataobject->courseid = $norolefoundcourse2->id;
         $dataobject->timestamp = time() - 32536001;
-        $DB->insert_record_raw('cleanupcoursestrigger_byrole', $dataobject, true, false, true);
+        $DB->insert_record('cleanupcoursestrigger_byrole', $dataobject);
         $data['norolefoundcourse2'] = $norolefoundcourse2;
 
         // Create a course already marked for deletion with one student and one teacher and old.
@@ -86,9 +86,9 @@ class cleanupcoursestrigger_byrole_generator extends testing_data_generator {
         $generator->enrol_user($user3->id, $rolefoundagain->id, 4);
         $generator->enrol_user($user2->id, $rolefoundagain->id, 4);
         $dataobject = new \stdClass();
-        $dataobject->id = $rolefoundagain->id;
+        $dataobject->courseid = $rolefoundagain->id;
         $dataobject->timestamp = time() - 31536000;
-        $DB->insert_record_raw('cleanupcoursestrigger_byrole', $dataobject, true, false, true);
+        $DB->insert_record('cleanupcoursestrigger_byrole', $dataobject);
         $data['rolefoundagain'] = $rolefoundagain;
         return $data;
     }

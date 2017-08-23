@@ -109,29 +109,28 @@ class byrole implements base {
      */
     private function handle_course($hasuserincharge, $courseid) {
         global $DB;
-        $intable = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $courseid));
+        $intable = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $courseid));
         // First case of function description.
         if ($intable === false && $hasuserincharge === false) {
             $dataobject = new \stdClass();
-            $dataobject->id = $courseid;
+            $dataobject->courseid = $courseid;
             $dataobject->timestamp = time();
-            $DB->insert_record_raw('cleanupcoursestrigger_byrole', $dataobject, true, false, true);
+            $DB->insert_record('cleanupcoursestrigger_byrole', $dataobject);
             return false;
             // Second case of function description.
         } else if ($intable && $hasuserincharge) {
             // Second case of function description.
-
-            $DB->delete_records('cleanupcoursestrigger_byrole', array('id' => $courseid));
+            $DB->delete_records('cleanupcoursestrigger_byrole', array('courseid' => $courseid));
             return false;
             // Third case of the function description.
         } else if ($intable && !$hasuserincharge) {
             $delay = get_config('cleanupcoursestrigger_byrole', 'delay');
-            $timecreated = $DB->get_record('cleanupcoursestrigger_byrole', array('id' => $courseid), 'timestamp');
+            $timecreated = $DB->get_record('cleanupcoursestrigger_byrole', array('courseid' => $courseid), 'timestamp');
             $now = time();
             $difference = $now - $timecreated->timestamp;
             // Checks how long the course has been in the table and deletes the table entry and the course.
             if ($difference > $delay) {
-                $DB->delete_records('cleanupcoursestrigger_byrole', array('id' => $courseid));
+                $DB->delete_records('cleanupcoursestrigger_byrole', array('courseid' => $courseid));
                 return true;
             }
         }

@@ -55,7 +55,7 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
         $mytrigger = new byrole();
         $donothandle = $mytrigger->check_course($data['teachercourse']);
         $this->assertEquals(trigger_response::next(), $donothandle);
-        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $data['teachercourse']->id));
+        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $data['teachercourse']->id));
         $this->assertEquals(false, $exist);
     }
     /**
@@ -68,7 +68,7 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
         $mytrigger = new byrole();
 
         $dohandle = $mytrigger->check_course($data['norolecourse']);
-        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $data['norolecourse']->id));
+        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $data['norolecourse']->id));
         $this->assertEquals(trigger_response::next(), $dohandle);
         $this->assertEquals(true, $exist);
     }
@@ -82,7 +82,7 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
         $mytrigger = new byrole();
 
         $dotrigger = $mytrigger->check_course($data['norolefoundcourse']);
-        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $data['norolefoundcourse']->id));
+        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $data['norolefoundcourse']->id));
         $this->assertEquals(trigger_response::trigger(), $dotrigger);
         $this->assertEquals(false, $exist);
     }
@@ -96,7 +96,7 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
         $mytrigger = new byrole();
 
         $donothandle = $mytrigger->check_course($data['rolefoundagain']);
-        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $data['rolefoundagain']->id));
+        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $data['rolefoundagain']->id));
         $this->assertEquals(trigger_response::next(), $donothandle);
         $this->assertEquals(false, $exist);
     }
@@ -111,12 +111,12 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
         $mytrigger = new byrole_test();
         $mytrigger->reset_roles();
         $dohandle = $mytrigger->check_course($data['teachercourse']);
-        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $data['teachercourse']->id));
+        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $data['teachercourse']->id));
         $this->assertEquals(trigger_response::next(), $dohandle);
         $this->assertEquals(true, $exist);
 
         $donothandle = $mytrigger->check_course($data['managercourse']);
-        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $data['managercourse']->id));
+        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $data['managercourse']->id));
         $this->assertEquals(trigger_response::next(), $donothandle);
         $this->assertEquals(false, $exist);
     }
@@ -131,13 +131,13 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
         $mytrigger = new byrole();
         // Course that was triggered beforehand is not handeled since the delay time is bigger.
         $donothandle = $mytrigger->check_course($data['norolefoundcourse']);
-        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $data['norolefoundcourse']->id));
+        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $data['norolefoundcourse']->id));
         $this->assertEquals(trigger_response::next(), $donothandle);
         $this->assertEquals(true, $exist);
 
         // Really old courses are still triggered.
         $dotrigger = $mytrigger->check_course($data['norolefoundcourse2']);
-        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $data['norolefoundcourse2']->id));
+        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $data['norolefoundcourse2']->id));
         $this->assertEquals(trigger_response::trigger(), $dotrigger);
         $this->assertEquals(false, $exist);
     }

@@ -5,12 +5,12 @@
     <TABLES>
         <TABLE NAME="cleanupcoursestrigger_byrole" COMMENT="table containing all mails which still have to be sent">
             <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="id of the course"/>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="id"/>
+                <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="id of the course"/>
                 <FIELD NAME="timestamp" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="timestamp when course was firstly recognized as abandoned"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-                <KEY NAME="foreign" TYPE="foreign" FIELDS="id" REFTABLE="course" REFFIELDS="id"/>
             </KEYS>
         </TABLE>
     </TABLES>
