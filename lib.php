@@ -18,7 +18,8 @@
  * Class to identify the courses to be deleted since they miss a
  * a person in charge.
  *
- * @package tool_cleanupcourses
+ * @package    tool_cleanupcourses_trigger
+ * @subpackage byrole
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -29,17 +30,19 @@ use tool_cleanupcourses\response\trigger_response;
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../lib.php');
 
-
 class byrole implements base {
+    /** @var $roles array Saves all roles that are marked as in charge */
     protected static $roles = null;
     /**
      * Checks the given course object and returns next() when the course has a responsible person and trigger() in case
-     * the course has no responsible person. Exclude is not necessary.
+     * the course has no responsible person and has been noted without a responsible person for a determined period of time.
+     * The time period is defined in the admin settings.
+     * Excluding courses is not necessary.
      * @param $course
      * @return trigger_response one of next() or trigger()
      */
     public function check_course($course) {
-        // Checks whether tole is in course.
+        // Checks whether role is represented in course.
         $hasrole = $this->check_course_has_role($course->id);
 
         $trigger = $this->handle_course($hasrole, $course->id);
@@ -49,18 +52,20 @@ class byrole implements base {
         return trigger_response::next();
     }
 
-    /** Checks whether a specific course has one of the roles defined in the trigger plugin config.
+    /**
+     * Checks whether a specific course has a responsible person.
+     * This check is based on roles. The responsible roles are fixed in the admin settings.
      * @param $courseid
      * @return bool
      */
     private function check_course_has_role($courseid) {
-        // Gets roles and time period until deletion from the settings.
+        // Gets roles from the settings.
         $roles = $this->get_roles();
-        // Get the context.
         $context = \context_course::instance($courseid);
+        // Returns all roles used in context and in parent context. Therefore be carefully with global roles!
         $courseroles = get_roles_used_in_context($context);
 
-        // Most likely case: role(s) were defined.
+        // Most likely case: role(s) were defined. get_roles() always returns an array or throws an exception.
         if (is_array($roles)) {
             foreach ($roles as $role) {
                 foreach ($courseroles as $courserole) {
@@ -75,7 +80,7 @@ class byrole implements base {
 
     /**
      * Return the roles that were set in the config.
-     * @return array|null
+     * @return array
      * @throws \coding_exception
      */
     private function get_roles() {
@@ -93,17 +98,19 @@ class byrole implements base {
     /**
      * Handles the current course
      * There are three cases:
-     * 1. the course has no role and no entry in the table the course should be inserted in the table
-     * 2. the course has an entry in the table but has a responsible person, the course should be deleted from the table
+     * 1. the course has no role and no entry in the table the course should be inserted in the table,
+     * 2. the course has an entry in the table but has a responsible person, the course should be deleted from the table,
      * 3. the course does not have a responsible person and is already in the table, it has to be checked how long
-     * the course is in the table and eventually the course is marked as to delete.
+     * the course is in the table and when the period of time is exceeded the course is marked as to delete.
+     * In case the course is not in the table and has a responsible person nothing has to be done.
      * @param $hasrole
      * @param $courseid
      * @return bool
      */
     private function handle_course($hasrole, $courseid) {
-        global $DB, $CFG;
+        global $DB;
         $intable = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $courseid));
+        // First case of function description.
         if ($intable === false && $hasrole === false) {
             $dataobject = new \stdClass();
             $dataobject->id = $courseid;
@@ -111,15 +118,17 @@ class byrole implements base {
             $DB->insert_record_raw('cleanupcoursestrigger_byrole', $dataobject, true, false, true);
             return false;
         } else if ($intable === true) {
+            // Second case of function description.
             if ($hasrole) {
                 $DB->delete_records('cleanupcoursestrigger_byrole', array('id' => $courseid));
                 return false;
+                // Third case of the function description.
             } else {
                 $delay = get_config('cleanupcoursestrigger_byrole', 'delay');
                 $timecreated = $DB->get_record('cleanupcoursestrigger_byrole', array('id' => $courseid), 'timestamp');
                 $now = time();
                 $difference = $now - $timecreated->timestamp;
-                // Checks how long the course has been in the table and deletes the course.
+                // Checks how long the course has been in the table and deletes the table entry and the course.
                 if ($difference > $delay) {
                     $DB->delete_records('cleanupcoursestrigger_byrole', array('id' => $courseid));
                     return true;

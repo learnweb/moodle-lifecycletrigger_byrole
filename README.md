@@ -3,7 +3,8 @@
 Course without a reponsible person are marked for the cleanupprocess of the cleanupcourses admin tool.
 ## Settings
 Site administrators choose between all available roles for responsible roles. When multiple roles are selected it 
-is sufficient if at least one role is represented in the course. 
+is sufficient if at least one role is represented in the course or in a parent context. This means that courses that belong
+to courses where the specific role is assigned are not deleted. 
 
 Additionally, administrators determine a time period which 
 serves as a queue time until a course is marked for the cleanup process.
