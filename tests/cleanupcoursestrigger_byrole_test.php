@@ -108,7 +108,7 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
         $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
         $data = $generator->test_create_preparation();
         set_config('roles', 'manager', 'cleanupcoursestrigger_byrole');
-        $mytrigger = new byrole_test();
+        $mytrigger = new byrole_reset_roles();
         $mytrigger->reset_roles();
         $dohandle = $mytrigger->check_course($data['teachercourse']);
         $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $data['teachercourse']->id));
@@ -128,7 +128,7 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
         $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
         $data = $generator->test_create_preparation();
         set_config('delay', 32536000, 'cleanupcoursestrigger_byrole');
-        $mytrigger = new byrole();
+        $mytrigger = new byrole_reset_roles();
         // Course that was triggered beforehand is not handeled since the delay time is bigger.
         $donothandle = $mytrigger->check_course($data['norolefoundcourse']);
         $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $data['norolefoundcourse']->id));
@@ -149,7 +149,7 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
         $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
         $data = $generator->test_create_preparation();
         set_config('roles', '', 'cleanupcoursestrigger_byrole');
-        $mytrigger = new byrole_test();
+        $mytrigger = new byrole_reset_roles();
         $mytrigger->reset_roles();
         // Although the course would be deleted it is triggered as next.
         $nothandle = $mytrigger->check_course($data['norolefoundcourse2']);
@@ -179,10 +179,10 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
 }
 
 /**
- * Class byrole_test minimal class to enable the reset of static variables.
+ * Class byrole_reset_roles minimal class to enable the reset of the static variable roles.
  * @package tool_cleanupcourses\trigger
  */
-class byrole_test extends byrole {
+class byrole_reset_roles extends byrole {
     /**
      * Resets the static variable roles.
      */
