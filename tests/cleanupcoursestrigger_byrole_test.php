@@ -111,8 +111,6 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
         $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
         $data = $generator->test_create_preparation();
         set_config('roles', 'manager', 'cleanupcoursestrigger_byrole');
-        $upsi = get_config('cleanupcoursestrigger_byrole', 'roles');
-        var_dump($upsi . 'this');
         $mytrigger = new byrole_test();
         $mytrigger->reset_roles();
         $donothandle = $mytrigger->check_course($data['validcourse']);
