@@ -45,7 +45,6 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
         global $CFG;
         $this->resetAfterTest(true);
     }
-
     /**
      * Test the locallib function for valid courses.
      */
@@ -54,12 +53,11 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
         $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
         $data = $generator->test_create_preparation();
         $mytrigger = new byrole();
-        $donothandle = $mytrigger->check_course($data['validcourse']);
+        $donothandle = $mytrigger->check_course($data['teachercourse']);
         $this->assertEquals(trigger_response::next(), $donothandle);
-        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $data['validcourse']->id));
+        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $data['teachercourse']->id));
         $this->assertEquals(false, $exist);
     }
-
     /**
      * Test the locallib function for a invalid course that is recognized for the first time.
      */
@@ -69,9 +67,9 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
         $data = $generator->test_create_preparation();
         $mytrigger = new byrole();
 
-        $norolehandler = $mytrigger->check_course($data['norolecourse']);
+        $dohandle = $mytrigger->check_course($data['norolecourse']);
         $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $data['norolecourse']->id));
-        $this->assertEquals(trigger_response::next(), $norolehandler);
+        $this->assertEquals(trigger_response::next(), $dohandle);
         $this->assertEquals(true, $exist);
     }
     /**
@@ -97,12 +95,11 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
         $data = $generator->test_create_preparation();
         $mytrigger = new byrole();
 
-        $dotrigger = $mytrigger->check_course($data['rolefoundagain']);
+        $donothandle = $mytrigger->check_course($data['rolefoundagain']);
         $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $data['rolefoundagain']->id));
-        $this->assertEquals(trigger_response::next(), $dotrigger);
+        $this->assertEquals(trigger_response::next(), $donothandle);
         $this->assertEquals(false, $exist);
     }
-
     /**
      * Test the locallib function in case the responsible person changed.
      */
@@ -113,15 +110,49 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
         set_config('roles', 'manager', 'cleanupcoursestrigger_byrole');
         $mytrigger = new byrole_test();
         $mytrigger->reset_roles();
-        $donothandle = $mytrigger->check_course($data['validcourse']);
-        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $data['validcourse']->id));
+        $dohandle = $mytrigger->check_course($data['teachercourse']);
+        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $data['teachercourse']->id));
+        $this->assertEquals(trigger_response::next(), $dohandle);
+        $this->assertEquals(true, $exist);
+
+        $donothandle = $mytrigger->check_course($data['managercourse']);
+        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $data['managercourse']->id));
+        $this->assertEquals(trigger_response::next(), $donothandle);
+        $this->assertEquals(false, $exist);
+    }
+    /**
+     * Test the locallib function in case the responsible person changed.
+     */
+    public function test_changedelay() {
+        global $DB;
+        $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
+        $data = $generator->test_create_preparation();
+        set_config('delay', 32536000, 'cleanupcoursestrigger_byrole');
+        $mytrigger = new byrole();
+        // Course that was triggered beforehand is not handeled since the delay time is bigger.
+        $donothandle = $mytrigger->check_course($data['norolefoundcourse']);
+        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $data['norolefoundcourse']->id));
         $this->assertEquals(trigger_response::next(), $donothandle);
         $this->assertEquals(true, $exist);
 
-        $donothandle = $mytrigger->check_course($data['validmanagercourse']);
-        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $data['validmanagercourse']->id));
-        $this->assertEquals(trigger_response::next(), $donothandle);
+        // Really old courses are still triggered.
+        $dotrigger = $mytrigger->check_course($data['norolefoundcourse2']);
+        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $data['norolefoundcourse2']->id));
+        $this->assertEquals(trigger_response::trigger(), $dotrigger);
         $this->assertEquals(false, $exist);
+    }
+    /**
+     * Test whether an exception is thrown when no roles are defined.
+     */
+    public function test_noroles_exception() {
+        $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
+        $data = $generator->test_create_preparation();
+        set_config('roles', '', 'cleanupcoursestrigger_byrole');
+        $mytrigger = new byrole_test();
+        $mytrigger->reset_roles();
+        $this->expectException('coding_exception');
+        // Which course is checked is insignificant any course would throw an coding exception.
+        $mytrigger->check_course($data['teachercourse']);
     }
     /**
      * Method recommended by moodle to assure database and dataroot is reset.
