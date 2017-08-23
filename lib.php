@@ -117,22 +117,22 @@ class byrole implements base {
             $dataobject->timestamp = time();
             $DB->insert_record_raw('cleanupcoursestrigger_byrole', $dataobject, true, false, true);
             return false;
-        } else if ($intable === true) {
             // Second case of function description.
-            if ($hasrole) {
+        } else if ($intable && $hasrole) {
+            // Second case of function description.
+
+            $DB->delete_records('cleanupcoursestrigger_byrole', array('id' => $courseid));
+            return false;
+            // Third case of the function description.
+        } else if ($intable && !$hasrole){
+            $delay = get_config('cleanupcoursestrigger_byrole', 'delay');
+            $timecreated = $DB->get_record('cleanupcoursestrigger_byrole', array('id' => $courseid), 'timestamp');
+            $now = time();
+            $difference = $now - $timecreated->timestamp;
+            // Checks how long the course has been in the table and deletes the table entry and the course.
+            if ($difference > $delay) {
                 $DB->delete_records('cleanupcoursestrigger_byrole', array('id' => $courseid));
-                return false;
-                // Third case of the function description.
-            } else {
-                $delay = get_config('cleanupcoursestrigger_byrole', 'delay');
-                $timecreated = $DB->get_record('cleanupcoursestrigger_byrole', array('id' => $courseid), 'timestamp');
-                $now = time();
-                $difference = $now - $timecreated->timestamp;
-                // Checks how long the course has been in the table and deletes the table entry and the course.
-                if ($difference > $delay) {
-                    $DB->delete_records('cleanupcoursestrigger_byrole', array('id' => $courseid));
-                    return true;
-                }
+                return true;
             }
         }
         return false;
