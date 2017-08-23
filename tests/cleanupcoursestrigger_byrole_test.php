@@ -142,17 +142,20 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
         $this->assertEquals(false, $exist);
     }
     /**
-     * Test whether an exception is thrown when no roles are defined.
+     * Test whether trigger::next() is thrown when no roles are defined.
      */
     public function test_noroles_exception() {
+        global $DB;
         $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
         $data = $generator->test_create_preparation();
         set_config('roles', '', 'cleanupcoursestrigger_byrole');
         $mytrigger = new byrole_test();
         $mytrigger->reset_roles();
-        $this->expectException('coding_exception');
-        // Which course is checked is insignificant any course would throw an coding exception.
-        $mytrigger->check_course($data['teachercourse']);
+        // Although the course would be deleted it is triggered as next.
+        $nothandle = $mytrigger->check_course($data['norolefoundcourse2']);
+        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $data['norolefoundcourse2']->id));
+        $this->assertEquals(trigger_response::next(), $nothandle);
+        $this->assertEquals(true, $exist);
     }
     /**
      * Method recommended by moodle to assure database and dataroot is reset.

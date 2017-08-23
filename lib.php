@@ -45,6 +45,10 @@ class byrole implements base {
         // Checks whether role is represented in course.
         $hasuserincharge = $this->check_course_has_role($course->id);
 
+        // When an exception was thrown the course is not handled.
+        if ($hasuserincharge === null) {
+            return trigger_response::next();
+        }
         $trigger = $this->handle_course($hasuserincharge, $course->id);
         if ($trigger) {
             return trigger_response::trigger();
@@ -56,11 +60,16 @@ class byrole implements base {
      * Checks whether a specific course has a responsible person.
      * This check is based on roles. The responsible roles are fixed in the admin settings.
      * @param $courseid
-     * @return bool
+     * @return boolean | null
      */
     private function check_course_has_role($courseid) {
         // Gets roles from the settings.
-        $roles = $this->get_roles();
+        try {
+            $roles = $this->get_roles();
+        } catch (\coding_exception $e) {
+            // Writhe in Log without writing it repeatedly.
+            return null;
+        }
         $context = \context_course::instance($courseid);
         // Returns all roles used in context and in parent context. Therefore be carefully with global roles!
         $courseroles = get_roles_used_in_context($context);
