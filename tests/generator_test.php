@@ -16,7 +16,7 @@
 /**
  * PHPUnit data generator tests
  *
- * @package    block_groups
+ * @package     tool_cleanupcourses
  * @category   phpunit
  * @copyright  2016 Nina Herrmann
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * PHPUnit data generator testcase
  *
- * @package    block_groups
+ * @package tool_cleanupcourses
  * @category   phpunit
  * @copyright  2016 Nina Herrmann
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -37,9 +37,8 @@ class cleanupcoursestrigger_byrole_generator_testcase extends advanced_testcase 
     public function test_generator() {
         global $DB;
         $this->resetAfterTest(true);
-
-        /** @var block_online_users_generator $generator */
-        $generator = $this->getDataGenerator()->get_plugin_generator('block_groups');
+        
+        $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
 
         $generator->create_instance();
     }
