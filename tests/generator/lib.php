@@ -37,41 +37,46 @@ class cleanupcoursestrigger_byrole_generator extends testing_data_generator {
         global $DB;
         $generator = advanced_testcase::getDataGenerator();
         $data = array();
+
+        // Creates different users.
+        $user1 = $generator->create_user();
+        $data['user1'] = $user1;
+        $user2 = $generator->create_user();
+        $data['user2'] = $user2;
+        $user3 = $generator->create_user();
+        $data['user3'] = $user3;
+
+        // Creates a course with one student one teacher.
         $validcourse = $generator->create_course(array('name' => 'validcourse'));
-
-        // Creates 2 Users, enroles them in validcourse.
-        $user = $generator->create_user();
-        $data['user1'] = $user;
-        $generator->enrol_user($user->id, $validcourse->id, 4);
-
-        $data['user2'] = $user;
-        $generator->enrol_user($user->id, $validcourse->id, 5);
-
+        $generator->enrol_user($user1->id, $validcourse->id, 4);
+        $generator->enrol_user($user2->id, $validcourse->id, 5);
         $data['validcourse'] = $validcourse;
+
+        // Creates a course with one student one manager.
+        $validmanagercourse = $generator->create_course(array('name' => 'validmanagercourse'));
+        $manager = $generator->create_user();
+        $data['manager'] = $manager;
+        $generator->enrol_user($user1->id, $validmanagercourse->id, 1);
+        $generator->enrol_user($user2->id, $validmanagercourse->id, 5);
+        $data['validmanagercourse'] = $validmanagercourse;
 
         // Create a course without valid role.
         $norolecourse = $generator->create_course(array('name' => 'norolecourse'));
-
         $data['norolecourse'] = $norolecourse;
 
-        // Create a already in table without valid role and old.
+        // Create a course already marked for deletion with one student and old.
         $norolefoundcourse = $generator->create_course(array('name' => 'norolefoundcourse'));
-        $user3 = $generator->create_user();
-        $data['user3'] = $user3;
         $generator->enrol_user($user3->id, $norolefoundcourse->id, 5);
-        // Writhes course in table and enrol one student.
         $dataobject = new \stdClass();
         $dataobject->id = $norolefoundcourse->id;
         $dataobject->timestamp = time() - 31536000;
         $DB->insert_record_raw('cleanupcoursestrigger_byrole', $dataobject, true, false, true);
         $data['norolefoundcourse'] = $norolefoundcourse;
 
-        // Create a already in table with valid role and old.
+        // Create a course already marked for deletion with one student and one teacher and old.
         $rolefoundagain = $generator->create_course(array('name' => 'rolefoundagain'));
-        $user4 = $generator->create_user();
-        $data['user4'] = $user4;
-        // Writhes course in table and enrol one teacher.
-        $generator->enrol_user($user4->id, $rolefoundagain->id, 4);
+        $generator->enrol_user($user3->id, $rolefoundagain->id, 4);
+        $generator->enrol_user($user2->id, $rolefoundagain->id, 4);
         $dataobject = new \stdClass();
         $dataobject->id = $rolefoundagain->id;
         $dataobject->timestamp = time() - 31536000;

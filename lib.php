@@ -31,6 +31,7 @@ require_once(__DIR__ . '/../lib.php');
 
 
 class byrole implements base {
+    protected static $roles = null;
     /**
      * Checks the given course object and returns next() when the course has a responsible person and trigger() in case
      * the course has no responsible person. Exclude is not necessary.
@@ -53,8 +54,6 @@ class byrole implements base {
      * @return bool
      */
     private function check_course_has_role($courseid) {
-        global $CFG;
-
         // Gets roles and time period until deletion from the settings.
         $roles = $this->get_roles();
         // Get the context.
@@ -80,18 +79,15 @@ class byrole implements base {
      * @throws \coding_exception
      */
     private function get_roles() {
-        global $CFG;
-        // Static to optimize the call, and prevent repetition of explode.
-        static $roles = null;
-        if ($roles === null) {
-            $roles = $CFG->cleanupcoursestrigger_byrole_roles;
+        if (self::$roles === null) {
+            $roles = get_config('cleanupcoursestrigger_byrole', 'roles');
             if ($roles === "") {
                 throw new \coding_exception('No Roles defined');
             } else {
-                $roles = explode(",", $roles);
+                self::$roles = explode(",", $roles);
             }
         }
-        return $roles;
+        return self::$roles;
     }
 
     /**
@@ -119,9 +115,8 @@ class byrole implements base {
                 $DB->delete_records('cleanupcoursestrigger_byrole', array('id' => $courseid));
                 return false;
             } else {
-                $delay = $CFG->cleanupcoursestrigger_byrole_delay;
+                $delay = get_config('cleanupcoursestrigger_byrole', 'delay');
                 $timecreated = $DB->get_record('cleanupcoursestrigger_byrole', array('id' => $courseid), 'timestamp');
-
                 $now = time();
                 $difference = $now - $timecreated->timestamp;
                 // Checks how long the course has been in the table and deletes the course.

@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/lib.php');
 
 // Time until a abandoned course is deleted default is 4 weeks.
-$settings->add(new admin_setting_configduration('cleanupcoursestrigger_byrole_delay',
+$settings->add(new admin_setting_configduration('cleanupcoursestrigger_byrole/delay',
     get_string('delay', 'cleanupcoursestrigger_byrole'),
     get_string('delay', 'cleanupcoursestrigger_byrole'), 2419200));
 $roles = get_all_roles();
@@ -36,6 +36,6 @@ $choices = array();
 foreach ($roles as $role) {
     $choices[$role->shortname] = $role->shortname;
 }
-$settings->add(new admin_setting_configmulticheckbox('cleanupcoursestrigger_byrole_roles', get_string('responsibleroles',
+$settings->add(new admin_setting_configmulticheckbox('cleanupcoursestrigger_byrole/roles', get_string('responsibleroles',
     'cleanupcoursestrigger_byrole'), get_string('explanationroles', 'cleanupcoursestrigger_byrole'),
-    array('teacher' => 'teacher'), $choices));
+    array('teacher' => 'teacher', 'editingteacher' => 'editingteacher'), $choices));

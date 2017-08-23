@@ -40,23 +40,19 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
      * Set up environment for phpunit test.
      * @return mixed data for test
      */
-    protected function set_up() {
+    protected function setUp() {
         // Recommended in Moodle docs to always include CFG.
         global $CFG;
-        $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
-        set_config('cleanupcoursestrigger_byrole_roles', 'teacher');
-
-        $data = $generator->test_create_preparation();
         $this->resetAfterTest(true);
-        return $data;
     }
 
     /**
-     * Function to test the locallib function for valid courses.
+     * Test the locallib function for valid courses.
      */
     public function test_lib_validcourse() {
         global $DB;
-        $data = $this->set_up();
+        $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
+        $data = $generator->test_create_preparation();
         $mytrigger = new byrole();
         $donothandle = $mytrigger->check_course($data['validcourse']);
         $this->assertEquals(trigger_response::next(), $donothandle);
@@ -65,11 +61,12 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
     }
 
     /**
-     * Function to test the locallib function for a invalid course that is recognized for the first time.
+     * Test the locallib function for a invalid course that is recognized for the first time.
      */
     public function test_lib_norolecourse() {
         global $DB;
-        $data = $this->set_up();
+        $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
+        $data = $generator->test_create_preparation();
         $mytrigger = new byrole();
 
         $norolehandler = $mytrigger->check_course($data['norolecourse']);
@@ -78,11 +75,12 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
         $this->assertEquals(true, $exist);
     }
     /**
-     * Function to test the locallib function for a invalid course that is old enough to be triggered.
+     * Test the locallib function for a invalid course that is old enough to be triggered.
      */
     public function test_lib_norolefoundcourse() {
         global $DB;
-        $data = $this->set_up();
+        $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
+        $data = $generator->test_create_preparation();
         $mytrigger = new byrole();
 
         $dotrigger = $mytrigger->check_course($data['norolefoundcourse']);
@@ -95,7 +93,8 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
      */
     public function test_lib_rolefoundagain() {
         global $DB;
-        $data = $this->set_up();
+        $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
+        $data = $generator->test_create_preparation();
         $mytrigger = new byrole();
 
         $dotrigger = $mytrigger->check_course($data['rolefoundagain']);
@@ -103,8 +102,31 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
         $this->assertEquals(trigger_response::next(), $dotrigger);
         $this->assertEquals(false, $exist);
     }
+
     /**
-     * Methodes recommended by moodle to assure database and dataroot is reset.
+     * Test the locallib function in case the responsible person changed.
+     */
+    public function test_changevalidrole() {
+        global $DB;
+        $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
+        $data = $generator->test_create_preparation();
+        set_config('roles', 'manager', 'cleanupcoursestrigger_byrole');
+        $upsi = get_config('cleanupcoursestrigger_byrole', 'roles');
+        var_dump($upsi . 'this');
+        $mytrigger = new byrole_test();
+        $mytrigger->reset_roles();
+        $donothandle = $mytrigger->check_course($data['validcourse']);
+        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $data['validcourse']->id));
+        $this->assertEquals(trigger_response::next(), $donothandle);
+        $this->assertEquals(true, $exist);
+
+        $donothandle = $mytrigger->check_course($data['validmanagercourse']);
+        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('id' => $data['validmanagercourse']->id));
+        $this->assertEquals(trigger_response::next(), $donothandle);
+        $this->assertEquals(false, $exist);
+    }
+    /**
+     * Method recommended by moodle to assure database and dataroot is reset.
      */
     public function test_deleting() {
         global $DB;
@@ -115,11 +137,24 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
         $this->assertEmpty($DB->get_records('cleanupcoursestrigger_byrole'));
     }
     /**
-     * Methodes recommended by moodle to assure database is reset.
+     * Method recommended by moodle to assure database is reset.
      */
     public function test_user_table_was_reset() {
         global $DB;
         $this->assertEquals(2, $DB->count_records('user', array()));
         $this->assertEquals(0, $DB->count_records('cleanupcoursestrigger_byrole', array()));
+    }
+}
+
+/**
+ * Class byrole_test minimal class to enable the reset of static variables.
+ * @package tool_cleanupcourses\trigger
+ */
+class byrole_test extends byrole {
+    /**
+     * Resets the static variable roles.
+     */
+    public function reset_roles() {
+        self::$roles = null;
     }
 }
