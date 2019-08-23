@@ -18,19 +18,19 @@
  * Class to identify the courses to be deleted since they miss a
  * a person in charge.
  *
- * @package    tool_cleanupcourses_trigger
+ * @package    tool_lifecycle_trigger
  * @subpackage byrole
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace tool_cleanupcourses\trigger;
+namespace tool_lifecycle\trigger;
 
-use tool_cleanupcourses\response\trigger_response;
+use tool_lifecycle\response\trigger_response;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../lib.php');
 
-class byrole implements base {
+class byrole extends base_automatic {
     /** @var $roles array Saves all roles that are marked as in charge */
     protected static $roles = null;
     /**
@@ -94,7 +94,7 @@ class byrole implements base {
      */
     private function get_roles() {
         if (self::$roles === null) {
-            $roles = get_config('cleanupcoursestrigger_byrole', 'roles');
+            $roles = get_config('lifecycletrigger_byrole', 'roles');
             if ($roles === "") {
                 throw new \coding_exception('No Roles defined');
             } else {
@@ -118,31 +118,39 @@ class byrole implements base {
      */
     private function handle_course($hasuserincharge, $courseid) {
         global $DB;
-        $intable = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $courseid));
+        $intable = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $courseid));
         // First case of function description.
         if ($intable === false && $hasuserincharge === false) {
             $dataobject = new \stdClass();
             $dataobject->courseid = $courseid;
             $dataobject->timestamp = time();
-            $DB->insert_record('cleanupcoursestrigger_byrole', $dataobject);
+            $DB->insert_record('lifecycletrigger_byrole', $dataobject);
             return false;
             // Second case of function description.
         } else if ($intable && $hasuserincharge) {
             // Second case of function description.
-            $DB->delete_records('cleanupcoursestrigger_byrole', array('courseid' => $courseid));
+            $DB->delete_records('lifecycletrigger_byrole', array('courseid' => $courseid));
             return false;
             // Third case of the function description.
         } else if ($intable && !$hasuserincharge) {
-            $delay = get_config('cleanupcoursestrigger_byrole', 'delay');
-            $timecreated = $DB->get_record('cleanupcoursestrigger_byrole', array('courseid' => $courseid), 'timestamp');
+            $delay = get_config('lifecycletrigger_byrole', 'delay');
+            $timecreated = $DB->get_record('lifecycletrigger_byrole', array('courseid' => $courseid), 'timestamp');
             $now = time();
             $difference = $now - $timecreated->timestamp;
             // Checks how long the course has been in the table and deletes the table entry and the course.
             if ($difference > $delay) {
-                $DB->delete_records('cleanupcoursestrigger_byrole', array('courseid' => $courseid));
+                $DB->delete_records('lifecycletrigger_byrole', array('courseid' => $courseid));
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * The return value should be equivalent with the name of the subplugin folder.
+     * @return string technical name of the subplugin
+     */
+    public function get_subpluginname() {
+        return 'byrole';
     }
 }

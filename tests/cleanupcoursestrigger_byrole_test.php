@@ -16,26 +16,26 @@
 /**
  * The class contains a test script for the trigger subplugin byrole
  *
- * @package tool_cleanupcourses
+ * @package tool_lifecycle
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace tool_cleanupcourses\trigger;
+namespace tool_lifecycle\trigger;
 
-use tool_cleanupcourses\response\trigger_response;
+use tool_lifecycle\response\trigger_response;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../lib.php');
 
 /**
- * Class cleanupcoursestrigger_byrole_testcase
+ * Class lifecycletrigger_byrole_testcase
  * @category   test
- * @package    tool_cleanupcourses
- * @group      cleanupcourses_trigger_byrole
+ * @package    tool_lifecycle
+ * @group      lifecycle_trigger_byrole
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
+class lifecycletrigger_byrole_testcase extends \advanced_testcase {
     /**
      * Set up environment for phpunit test.
      * @return mixed data for test
@@ -50,12 +50,12 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
      */
     public function test_lib_validcourse() {
         global $DB;
-        $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
+        $generator = $this->getDataGenerator()->get_plugin_generator('lifecycletrigger_byrole');
         $data = $generator->test_create_preparation();
         $mytrigger = new byrole();
         $donothandle = $mytrigger->check_course($data['teachercourse']);
         $this->assertEquals(trigger_response::next(), $donothandle);
-        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $data['teachercourse']->id));
+        $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['teachercourse']->id));
         $this->assertEquals(false, $exist);
     }
     /**
@@ -63,12 +63,12 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
      */
     public function test_lib_norolecourse() {
         global $DB;
-        $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
+        $generator = $this->getDataGenerator()->get_plugin_generator('lifecycletrigger_byrole');
         $data = $generator->test_create_preparation();
         $mytrigger = new byrole();
 
         $dohandle = $mytrigger->check_course($data['norolecourse']);
-        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $data['norolecourse']->id));
+        $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['norolecourse']->id));
         $this->assertEquals(trigger_response::next(), $dohandle);
         $this->assertEquals(true, $exist);
     }
@@ -77,12 +77,12 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
      */
     public function test_lib_norolefoundcourse() {
         global $DB;
-        $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
+        $generator = $this->getDataGenerator()->get_plugin_generator('lifecycletrigger_byrole');
         $data = $generator->test_create_preparation();
         $mytrigger = new byrole();
 
         $dotrigger = $mytrigger->check_course($data['norolefoundcourse']);
-        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $data['norolefoundcourse']->id));
+        $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['norolefoundcourse']->id));
         $this->assertEquals(trigger_response::trigger(), $dotrigger);
         $this->assertEquals(false, $exist);
     }
@@ -91,12 +91,12 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
      */
     public function test_lib_rolefoundagain() {
         global $DB;
-        $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
+        $generator = $this->getDataGenerator()->get_plugin_generator('lifecycletrigger_byrole');
         $data = $generator->test_create_preparation();
         $mytrigger = new byrole();
 
         $donothandle = $mytrigger->check_course($data['rolefoundagain']);
-        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $data['rolefoundagain']->id));
+        $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['rolefoundagain']->id));
         $this->assertEquals(trigger_response::next(), $donothandle);
         $this->assertEquals(false, $exist);
     }
@@ -105,18 +105,18 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
      */
     public function test_changevalidrole() {
         global $DB;
-        $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
+        $generator = $this->getDataGenerator()->get_plugin_generator('lifecycletrigger_byrole');
         $data = $generator->test_create_preparation();
-        set_config('roles', 'manager', 'cleanupcoursestrigger_byrole');
+        set_config('roles', 'manager', 'lifecycletrigger_byrole');
         $mytrigger = new byrole_reset_roles();
         $mytrigger->reset_roles();
         $dohandle = $mytrigger->check_course($data['teachercourse']);
-        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $data['teachercourse']->id));
+        $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['teachercourse']->id));
         $this->assertEquals(trigger_response::next(), $dohandle);
         $this->assertEquals(true, $exist);
 
         $donothandle = $mytrigger->check_course($data['managercourse']);
-        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $data['managercourse']->id));
+        $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['managercourse']->id));
         $this->assertEquals(trigger_response::next(), $donothandle);
         $this->assertEquals(false, $exist);
     }
@@ -125,19 +125,19 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
      */
     public function test_changedelay() {
         global $DB;
-        $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
+        $generator = $this->getDataGenerator()->get_plugin_generator('lifecycletrigger_byrole');
         $data = $generator->test_create_preparation();
-        set_config('delay', 32536000, 'cleanupcoursestrigger_byrole');
+        set_config('delay', 32536000, 'lifecycletrigger_byrole');
         $mytrigger = new byrole_reset_roles();
         // Course that was triggered beforehand is not handeled since the delay time is bigger.
         $donothandle = $mytrigger->check_course($data['norolefoundcourse']);
-        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $data['norolefoundcourse']->id));
+        $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['norolefoundcourse']->id));
         $this->assertEquals(trigger_response::next(), $donothandle);
         $this->assertEquals(true, $exist);
 
         // Really old courses are still triggered.
         $dotrigger = $mytrigger->check_course($data['norolefoundcourse2']);
-        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $data['norolefoundcourse2']->id));
+        $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['norolefoundcourse2']->id));
         $this->assertEquals(trigger_response::trigger(), $dotrigger);
         $this->assertEquals(false, $exist);
     }
@@ -146,14 +146,14 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
      */
     public function test_noroles_exception() {
         global $DB;
-        $generator = $this->getDataGenerator()->get_plugin_generator('cleanupcoursestrigger_byrole');
+        $generator = $this->getDataGenerator()->get_plugin_generator('lifecycletrigger_byrole');
         $data = $generator->test_create_preparation();
-        set_config('roles', '', 'cleanupcoursestrigger_byrole');
+        set_config('roles', '', 'lifecycletrigger_byrole');
         $mytrigger = new byrole_reset_roles();
         $mytrigger->reset_roles();
         // Although the course would be deleted it is triggered as next.
         $nothandle = $mytrigger->check_course($data['norolefoundcourse2']);
-        $exist = $DB->record_exists('cleanupcoursestrigger_byrole', array('courseid' => $data['norolefoundcourse2']->id));
+        $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['norolefoundcourse2']->id));
         $this->assertEquals(trigger_response::next(), $nothandle);
         $this->assertEquals(true, $exist);
     }
@@ -164,9 +164,9 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
         global $DB;
         $this->resetAfterTest(true);
         $DB->delete_records('user');
-        $DB->delete_records('cleanupcoursestrigger_byrole');
+        $DB->delete_records('lifecycletrigger_byrole');
         $this->assertEmpty($DB->get_records('user'));
-        $this->assertEmpty($DB->get_records('cleanupcoursestrigger_byrole'));
+        $this->assertEmpty($DB->get_records('lifecycletrigger_byrole'));
     }
     /**
      * Method recommended by moodle to assure database is reset.
@@ -174,13 +174,13 @@ class cleanupcoursestrigger_byrole_testcase extends \advanced_testcase {
     public function test_user_table_was_reset() {
         global $DB;
         $this->assertEquals(2, $DB->count_records('user', array()));
-        $this->assertEquals(0, $DB->count_records('cleanupcoursestrigger_byrole', array()));
+        $this->assertEquals(0, $DB->count_records('lifecycletrigger_byrole', array()));
     }
 }
 
 /**
  * Class byrole_reset_roles minimal class to enable the reset of the static variable roles.
- * @package tool_cleanupcourses\trigger
+ * @package tool_lifecycle\trigger
  */
 class byrole_reset_roles extends byrole {
     /**

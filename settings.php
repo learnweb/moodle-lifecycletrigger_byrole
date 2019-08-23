@@ -17,7 +17,7 @@
 /**
  * Settings for byrole
  *
- * @package tool_cleanupcourses_trigger
+ * @package tool_lifecycle_trigger
  * @subpackage byrole
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -28,9 +28,9 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/lib.php');
 
 // Add setting for time period until a abandoned course is deleted. The default is 4 weeks.
-$settings->add(new admin_setting_configduration('cleanupcoursestrigger_byrole/delay',
-    get_string('delay', 'cleanupcoursestrigger_byrole'),
-    get_string('delay', 'cleanupcoursestrigger_byrole'), 2419200));
+$settings->add(new admin_setting_configduration('lifecycletrigger_byrole/delay',
+    get_string('delay', 'lifecycletrigger_byrole'),
+    get_string('delay', 'lifecycletrigger_byrole'), 2419200));
 $roles = get_all_roles();
 $choices = array();
 foreach ($roles as $role) {
@@ -38,6 +38,6 @@ foreach ($roles as $role) {
 }
 // Add setting for roles that are responsible for a course. The default is teacher and editingteacher.
 
-$settings->add(new admin_setting_configmulticheckbox('cleanupcoursestrigger_byrole/roles', get_string('responsibleroles',
-    'cleanupcoursestrigger_byrole'), get_string('explanationroles', 'cleanupcoursestrigger_byrole'),
+$settings->add(new admin_setting_configmulticheckbox('lifecycletrigger_byrole/roles', get_string('responsibleroles',
+    'lifecycletrigger_byrole'), get_string('explanationroles', 'lifecycletrigger_byrole'),
     array('teacher' => 'teacher', 'editingteacher' => 'editingteacher'), $choices));

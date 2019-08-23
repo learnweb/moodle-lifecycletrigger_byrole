@@ -1,6 +1,6 @@
-# moodle-cleanupcoursestrigger_byrole
-[WIP] This is a trigger-Subplugin for the admin tool [moodle-tool_cleanupcourses](https://github.com/learnweb/moodle-tool_cleanupcourses). 
-Course without a reponsible person are marked for the cleanupprocess of the cleanupcourses admin tool.
+# moodle-lifecycletrigger_byrole
+This is a trigger-Subplugin for the admin tool [moodle-tool_lifecycle](https://github.com/learnweb/moodle-tool_lifecycle). 
+Course without a reponsible person are marked for the cleanupprocess of the lifecycle admin tool.
 ## Settings
 Site administrators choose between all available roles for responsible roles. When multiple roles are selected it 
 is sufficient if at least one role is represented in the course or in a parent context. This means that courses that belong
@@ -18,4 +18,4 @@ When a course has no responsible person and a entry in the table and the timesta
 is sufficiently old, the course is triggered for the cleanup process of the admin tool.
   
  For detailed information on trigger plugins visit the 
-[Wiki](https://github.com/learnweb/moodle-tool_cleanupcourses/wiki) of the cleanupcourses admin tool.
+[Wiki](https://github.com/learnweb/moodle-tool_lifecycle/wiki) of the lifecycle admin tool.

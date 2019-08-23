@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Cleanup Courses Site Course Trigger
+ * Lifecycle By Role Trigger
  *
- * @package    tool_cleanupcourses_trigger
+ * @package    tool_lifecycle_trigger
  * @subpackage byrole
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,4 +27,4 @@ defined('MOODLE_INTERNAL') || die;
 
 $plugin->version  = 2017082302;
 $plugin->requires = 2017051501;
-$plugin->component = 'cleanupcoursestrigger_byrole';
+$plugin->component = 'lifecycletrigger_byrole';

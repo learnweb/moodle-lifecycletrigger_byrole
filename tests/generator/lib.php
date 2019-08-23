@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
- * Generator for the cleanupcoursestrigger_byrole testcase
+ * Generator for the lifecycletrigger_byrole testcase
  * @category   test
 
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
@@ -23,17 +23,17 @@
 
 defined('MOODLE_INTERNAL') || die();
 /**
- * Generator class for the cleanupcoursestrigger_byrole.
+ * Generator class for the lifecycletrigger_byrole.
  *
  * @category   test
- * @package    tool_cleanupcourses_trigger
+ * @package    tool_lifecycle_trigger
  * @subpackage byrole
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class cleanupcoursestrigger_byrole_generator extends testing_data_generator {
+class lifecycletrigger_byrole_generator extends testing_data_generator {
     /**
-     * Creates data to test the trigger subplugin cleanupcoursestrigger_byrole.
+     * Creates data to test the trigger subplugin lifecycletrigger_byrole.
      */
     public function test_create_preparation () {
         global $DB;
@@ -69,7 +69,7 @@ class cleanupcoursestrigger_byrole_generator extends testing_data_generator {
         $dataobject = new \stdClass();
         $dataobject->courseid = $norolefoundcourse->id;
         $dataobject->timestamp = time() - 31536000;
-        $DB->insert_record('cleanupcoursestrigger_byrole', $dataobject);
+        $DB->insert_record('lifecycletrigger_byrole', $dataobject);
         $data['norolefoundcourse'] = $norolefoundcourse;
 
         // Create a course already marked for deletion with one student and really old.
@@ -78,7 +78,7 @@ class cleanupcoursestrigger_byrole_generator extends testing_data_generator {
         $dataobject = new \stdClass();
         $dataobject->courseid = $norolefoundcourse2->id;
         $dataobject->timestamp = time() - 32536001;
-        $DB->insert_record('cleanupcoursestrigger_byrole', $dataobject);
+        $DB->insert_record('lifecycletrigger_byrole', $dataobject);
         $data['norolefoundcourse2'] = $norolefoundcourse2;
 
         // Create a course already marked for deletion with one student and one teacher and old.
@@ -88,7 +88,7 @@ class cleanupcoursestrigger_byrole_generator extends testing_data_generator {
         $dataobject = new \stdClass();
         $dataobject->courseid = $rolefoundagain->id;
         $dataobject->timestamp = time() - 31536000;
-        $DB->insert_record('cleanupcoursestrigger_byrole', $dataobject);
+        $DB->insert_record('lifecycletrigger_byrole', $dataobject);
         $data['rolefoundagain'] = $rolefoundagain;
         return $data;
     }

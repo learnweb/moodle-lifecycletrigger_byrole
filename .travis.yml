@@ -38,7 +38,7 @@ before_install:
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
 
 install:
-  - moodle-plugin-ci add-plugin --branch master learnweb/moodle-tool_cleanupcourses
+  - moodle-plugin-ci add-plugin --branch master learnweb/moodle-tool_lifecycle
   - moodle-plugin-ci install
 
 script:

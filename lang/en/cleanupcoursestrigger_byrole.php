@@ -16,12 +16,12 @@
 /**
  * Lang strings for site course trigger
  *
- * @package tool_cleanupcourses_trigger
+ * @package tool_lifecycle_trigger
  * @subpackage byrole
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['pluginname'] = 'Delete courses by role';
+$string['pluginname'] = 'Delete courses by roles missing';
 $string['delay'] = 'days until a abandoned course is deleted';
 $string['explanationroles'] = 'Select the roles that have to be represented at a course. If one of the roles is present the course is not deleted.';
 $string['responsibleroles'] = 'Responsible Roles in courses';
