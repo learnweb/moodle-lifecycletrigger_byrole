@@ -112,7 +112,7 @@ class byrole extends base_automatic {
             return $elem->id;
         }, $courseswithoutteacher);
 
-        // First case of function description.
+        // Insert new entries without the specified role assignments.
 
         $insertcourses = array_diff($courseswithoutteacher, $coursesintable);
 
@@ -126,14 +126,18 @@ class byrole extends base_automatic {
         }
         $DB->insert_records('lifecycletrigger_byrole', $records);
 
+        // Delete old entries, which now have an assigment of the specified role, again.
+
         $deletecourses = array_diff($coursesintable, $courseswithoutteacher);
 
         list($insqltrigger, $inparamstrigger) = $DB->get_in_or_equal($triggerid, SQL_PARAMS_NAMED);
-        list($insqlcourseids, $inparamscourseids) = $DB->get_in_or_equal($deletecourses, SQL_PARAMS_NAMED);
+        if (!empty($deletecourses)) {
+            list($insqlcourseids, $inparamscourseids) = $DB->get_in_or_equal($deletecourses, SQL_PARAMS_NAMED);
 
-        $DB->delete_records_select('lifecycletrigger_byrole',
-            "courseid {$insqlcourseids} AND triggerid {$insqltrigger}",
-            array_merge($inparamscourseids, $inparamstrigger));
+            $DB->delete_records_select('lifecycletrigger_byrole',
+                "courseid {$insqlcourseids} AND triggerid {$insqltrigger}",
+                array_merge($inparamscourseids, $inparamstrigger));
+        }
     }
 
     /**
