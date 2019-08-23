@@ -25,6 +25,6 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version  = 2017082302;
+$plugin->version  = 2019082303;
 $plugin->requires = 2017051501;
 $plugin->component = 'lifecycletrigger_byrole';

@@ -22,6 +22,7 @@
  */
 namespace tool_lifecycle\trigger;
 
+use tool_lifecycle\processor;
 use tool_lifecycle\response\trigger_response;
 
 defined('MOODLE_INTERNAL') || die();
@@ -31,11 +32,15 @@ require_once(__DIR__ . '/../lib.php');
  * Class lifecycletrigger_byrole_testcase
  * @category   test
  * @package    tool_lifecycle
- * @group      lifecycle_trigger_byrole
+ * @group      lifecycletrigger_byrole
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class lifecycletrigger_byrole_testcase extends \advanced_testcase {
+
+    /**@var processor Instance of the lifecycle processor */
+    private $processor;
+
     /**
      * Set up environment for phpunit test.
      * @return mixed data for test
@@ -44,6 +49,8 @@ class lifecycletrigger_byrole_testcase extends \advanced_testcase {
         // Recommended in Moodle docs to always include CFG.
         global $CFG;
         $this->resetAfterTest(true);
+
+        $this->processor = new processor();
     }
     /**
      * Test the locallib function for valid courses.
@@ -52,9 +59,11 @@ class lifecycletrigger_byrole_testcase extends \advanced_testcase {
         global $DB;
         $generator = $this->getDataGenerator()->get_plugin_generator('lifecycletrigger_byrole');
         $data = $generator->test_create_preparation();
-        $mytrigger = new byrole();
-        $donothandle = $mytrigger->check_course($data['teachercourse']);
-        $this->assertEquals(trigger_response::next(), $donothandle);
+        $recordset = $this->processor->get_course_recordset([$data['trigger']], []);
+
+        foreach ($recordset as $element) {
+            $this->assertNotEquals($data['teachercourse']->id, $element->id, 'The course should not have been triggered');
+        }
         $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['teachercourse']->id));
         $this->assertEquals(false, $exist);
     }
@@ -65,13 +74,15 @@ class lifecycletrigger_byrole_testcase extends \advanced_testcase {
         global $DB;
         $generator = $this->getDataGenerator()->get_plugin_generator('lifecycletrigger_byrole');
         $data = $generator->test_create_preparation();
-        $mytrigger = new byrole();
+        $recordset = $this->processor->get_course_recordset([$data['trigger']], []);
 
-        $dohandle = $mytrigger->check_course($data['norolecourse']);
+        foreach ($recordset as $element) {
+            $this->assertNotEquals($data['norolecourse']->id, $element->id, 'The course should not have been triggered');
+        }
         $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['norolecourse']->id));
-        $this->assertEquals(trigger_response::next(), $dohandle);
         $this->assertEquals(true, $exist);
     }
+
     /**
      * Test the locallib function for a invalid course that is old enough to be triggered.
      */
@@ -79,13 +90,19 @@ class lifecycletrigger_byrole_testcase extends \advanced_testcase {
         global $DB;
         $generator = $this->getDataGenerator()->get_plugin_generator('lifecycletrigger_byrole');
         $data = $generator->test_create_preparation();
-        $mytrigger = new byrole();
+        $recordset = $this->processor->get_course_recordset([$data['trigger']], []);
 
-        $dotrigger = $mytrigger->check_course($data['norolefoundcourse']);
+        $found = false;
+        foreach ($recordset as $element) {
+            if ($data['norolefoundcourse']->id == $element->id) {
+                $found = true;
+            }
+        }
+        $this->assertTrue($found, 'The course should have been triggered');
         $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['norolefoundcourse']->id));
-        $this->assertEquals(trigger_response::trigger(), $dotrigger);
-        $this->assertEquals(false, $exist);
+        $this->assertEquals(true, $exist);
     }
+
     /**
      * Test the locallib function for a course that was invalid and has a responsible person again.
      */
@@ -93,100 +110,17 @@ class lifecycletrigger_byrole_testcase extends \advanced_testcase {
         global $DB;
         $generator = $this->getDataGenerator()->get_plugin_generator('lifecycletrigger_byrole');
         $data = $generator->test_create_preparation();
-        $mytrigger = new byrole();
 
-        $donothandle = $mytrigger->check_course($data['rolefoundagain']);
         $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['rolefoundagain']->id));
-        $this->assertEquals(trigger_response::next(), $donothandle);
-        $this->assertEquals(false, $exist);
-    }
-    /**
-     * Test the locallib function in case the responsible person changed.
-     */
-    public function test_changevalidrole() {
-        global $DB;
-        $generator = $this->getDataGenerator()->get_plugin_generator('lifecycletrigger_byrole');
-        $data = $generator->test_create_preparation();
-        set_config('roles', 'manager', 'lifecycletrigger_byrole');
-        $mytrigger = new byrole_reset_roles();
-        $mytrigger->reset_roles();
-        $dohandle = $mytrigger->check_course($data['teachercourse']);
-        $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['teachercourse']->id));
-        $this->assertEquals(trigger_response::next(), $dohandle);
         $this->assertEquals(true, $exist);
 
-        $donothandle = $mytrigger->check_course($data['managercourse']);
-        $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['managercourse']->id));
-        $this->assertEquals(trigger_response::next(), $donothandle);
-        $this->assertEquals(false, $exist);
-    }
-    /**
-     * Test the locallib function in case the responsible person changed.
-     */
-    public function test_changedelay() {
-        global $DB;
-        $generator = $this->getDataGenerator()->get_plugin_generator('lifecycletrigger_byrole');
-        $data = $generator->test_create_preparation();
-        set_config('delay', 32536000, 'lifecycletrigger_byrole');
-        $mytrigger = new byrole_reset_roles();
-        // Course that was triggered beforehand is not handeled since the delay time is bigger.
-        $donothandle = $mytrigger->check_course($data['norolefoundcourse']);
-        $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['norolefoundcourse']->id));
-        $this->assertEquals(trigger_response::next(), $donothandle);
-        $this->assertEquals(true, $exist);
+        $recordset = $this->processor->get_course_recordset([$data['trigger']], []);
 
-        // Really old courses are still triggered.
-        $dotrigger = $mytrigger->check_course($data['norolefoundcourse2']);
-        $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['norolefoundcourse2']->id));
-        $this->assertEquals(trigger_response::trigger(), $dotrigger);
-        $this->assertEquals(false, $exist);
-    }
-    /**
-     * Test whether trigger::next() is thrown when no roles are defined.
-     */
-    public function test_noroles_exception() {
-        global $DB;
-        $generator = $this->getDataGenerator()->get_plugin_generator('lifecycletrigger_byrole');
-        $data = $generator->test_create_preparation();
-        set_config('roles', '', 'lifecycletrigger_byrole');
-        $mytrigger = new byrole_reset_roles();
-        $mytrigger->reset_roles();
-        // Although the course would be deleted it is triggered as next.
-        $nothandle = $mytrigger->check_course($data['norolefoundcourse2']);
-        $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['norolefoundcourse2']->id));
-        $this->assertEquals(trigger_response::next(), $nothandle);
-        $this->assertEquals(true, $exist);
-    }
-    /**
-     * Method recommended by moodle to assure database and dataroot is reset.
-     */
-    public function test_deleting() {
-        global $DB;
-        $this->resetAfterTest(true);
-        $DB->delete_records('user');
-        $DB->delete_records('lifecycletrigger_byrole');
-        $this->assertEmpty($DB->get_records('user'));
-        $this->assertEmpty($DB->get_records('lifecycletrigger_byrole'));
-    }
-    /**
-     * Method recommended by moodle to assure database is reset.
-     */
-    public function test_user_table_was_reset() {
-        global $DB;
-        $this->assertEquals(2, $DB->count_records('user', array()));
-        $this->assertEquals(0, $DB->count_records('lifecycletrigger_byrole', array()));
-    }
-}
+        foreach ($recordset as $element) {
+            $this->assertNotEquals($data['rolefoundagain']->id, $element->id, 'The course should not have been triggered');
+        }
 
-/**
- * Class byrole_reset_roles minimal class to enable the reset of the static variable roles.
- * @package tool_lifecycle\trigger
- */
-class byrole_reset_roles extends byrole {
-    /**
-     * Resets the static variable roles.
-     */
-    public function reset_roles() {
-        self::$roles = null;
+        $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['rolefoundagain']->id));
+        $this->assertEquals(false, $exist);
     }
 }

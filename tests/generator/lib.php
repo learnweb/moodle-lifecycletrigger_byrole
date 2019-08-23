@@ -21,6 +21,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use tool_lifecycle\entity\trigger_subplugin;
+use tool_lifecycle\entity\workflow;
+use tool_lifecycle\manager\settings_manager;
+use tool_lifecycle\manager\trigger_manager;
+use tool_lifecycle\manager\workflow_manager;
+use tool_lifecycle\settings_type;
+
 defined('MOODLE_INTERNAL') || die();
 /**
  * Generator class for the lifecycletrigger_byrole.
@@ -32,6 +39,34 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class lifecycletrigger_byrole_generator extends testing_data_generator {
+
+    /**
+     * Creates a trigger startdatedelay for an artificial workflow without steps.
+     * @return trigger_subplugin the created startdatedelay trigger.
+     */
+    public function create_trigger_with_workflow() {
+        // Create Workflow.
+        $record = new stdClass();
+        $record->id = null;
+        $record->title = 'myworkflow';
+        $workflow = workflow::from_record($record);
+        workflow_manager::insert_or_update($workflow);
+        // Create trigger.
+        $record = new stdClass();
+        $record->subpluginname = 'byrole';
+        $record->instancename = 'byrole';
+        $record->workflowid = $workflow->id;
+        $trigger = trigger_subplugin::from_record($record);
+        trigger_manager::insert_or_update($trigger);
+        // Set delay setting.
+        $settings = new stdClass();
+        $settings->roles = '1,3';
+        $settings->delay = 2000;
+        settings_manager::save_settings($trigger->id, settings_type::TRIGGER, $trigger->subpluginname, $settings);
+
+        return $trigger;
+    }
+
     /**
      * Creates data to test the trigger subplugin lifecycletrigger_byrole.
      */
@@ -40,6 +75,8 @@ class lifecycletrigger_byrole_generator extends testing_data_generator {
         $generator = advanced_testcase::getDataGenerator();
         $data = array();
 
+        $data['trigger'] = $this->create_trigger_with_workflow();
+
         // Creates different users.
         $user1 = $generator->create_user();
         $user2 = $generator->create_user();
@@ -47,7 +84,7 @@ class lifecycletrigger_byrole_generator extends testing_data_generator {
 
         // Creates a course with one student one teacher.
         $teachercourse = $generator->create_course(array('name' => 'teachercourse'));
-        $generator->enrol_user($user1->id, $teachercourse->id, 4);
+        $generator->enrol_user($user1->id, $teachercourse->id, 3);
         $generator->enrol_user($user2->id, $teachercourse->id, 5);
         $data['teachercourse'] = $teachercourse;
 
@@ -68,7 +105,8 @@ class lifecycletrigger_byrole_generator extends testing_data_generator {
         $generator->enrol_user($user3->id, $norolefoundcourse->id, 5);
         $dataobject = new \stdClass();
         $dataobject->courseid = $norolefoundcourse->id;
-        $dataobject->timestamp = time() - 31536000;
+        $dataobject->triggerid = $data['trigger']->id;
+        $dataobject->timecreated = time() - 31536000;
         $DB->insert_record('lifecycletrigger_byrole', $dataobject);
         $data['norolefoundcourse'] = $norolefoundcourse;
 
@@ -77,17 +115,19 @@ class lifecycletrigger_byrole_generator extends testing_data_generator {
         $generator->enrol_user($user3->id, $norolefoundcourse2->id, 5);
         $dataobject = new \stdClass();
         $dataobject->courseid = $norolefoundcourse2->id;
-        $dataobject->timestamp = time() - 32536001;
+        $dataobject->triggerid = $data['trigger']->id;
+        $dataobject->timecreated = time() - 32536001;
         $DB->insert_record('lifecycletrigger_byrole', $dataobject);
         $data['norolefoundcourse2'] = $norolefoundcourse2;
 
         // Create a course already marked for deletion with one student and one teacher and old.
         $rolefoundagain = $generator->create_course(array('name' => 'rolefoundagain'));
-        $generator->enrol_user($user3->id, $rolefoundagain->id, 4);
-        $generator->enrol_user($user2->id, $rolefoundagain->id, 4);
+        $generator->enrol_user($user3->id, $rolefoundagain->id, 3);
+        $generator->enrol_user($user2->id, $rolefoundagain->id, 5);
         $dataobject = new \stdClass();
         $dataobject->courseid = $rolefoundagain->id;
-        $dataobject->timestamp = time() - 31536000;
+        $dataobject->triggerid = $data['trigger']->id;
+        $dataobject->timecreated = time() - 31536000;
         $DB->insert_record('lifecycletrigger_byrole', $dataobject);
         $data['rolefoundagain'] = $rolefoundagain;
         return $data;

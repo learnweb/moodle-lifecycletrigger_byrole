@@ -33,65 +33,34 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../lib.php');
 
 class byrole extends base_automatic {
-    /** @var $roles array Saves all roles that are marked as in charge */
-    protected static $roles = null;
 
     /**
-     * Checks the given course object and returns next() when the course has a responsible person and trigger() in case
-     * the course has no responsible person and has been noted without a responsible person for a determined period of time.
-     * The time period is defined in the admin settings.
-     * Excluding courses is not necessary.
-     * @param $course
-     * @param $triggerid int id of the trigger instance
-     * @return trigger_response one of next() or trigger()
+     * Extends the where clause by a statement which selects all entries of the byrole table,
+     * which reached a specific age. That means they are longer than the max delay time without a responsible person.
+     * Further, we update the byrole table in this function to refresh the records of the stored courses.
+     * @param $triggerid
+     * @return array
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function check_course($course, $triggerid) {
-        // Checks whether role is represented in course.
-        $hasuserincharge = $this->check_course_has_role($course->id, $triggerid);
+    public function get_course_recordset_where($triggerid) {
+        $this->update_courses($triggerid);
+        $delay = settings_manager::get_settings($triggerid, settings_type::TRIGGER)['delay'];
+        $maxtime = time() - $delay;
 
-        // When an exception was thrown the course is not handled.
-        if ($hasuserincharge === null) {
-            return trigger_response::next();
-        }
-        $trigger = $this->handle_course($hasuserincharge, $course->id, $triggerid);
-        if ($trigger) {
-            return trigger_response::trigger();
-        }
-        return trigger_response::next();
+        $sql = "{course}.id in (SELECT DISTINCT courseid
+              FROM {lifecycletrigger_byrole} WHERE triggerid = $triggerid AND timecreated < $maxtime)";
+        return array($sql, array());
     }
 
     /**
-     * Checks whether a specific course has a responsible person.
-     * This check is based on roles. The responsible roles are fixed in the admin settings.
-     * @param $courseid
+     * Always triggers a course that got past the where clause.
+     * @param $course
      * @param $triggerid int id of the trigger instance
-     * @return boolean | null
+     * @return trigger_response one of next() or trigger()
      */
-    private function check_course_has_role($courseid, $triggerid) {
-        // Gets roles from the settings.
-        try {
-            $roles = $this->get_roles($triggerid);
-        } catch (\coding_exception $e) {
-            // Writhe in Log without writing it repeatedly.
-            return null;
-        }
-        $context = \context_course::instance($courseid);
-        // Returns all roles used in context and in parent context. Therefore be carefully with global roles!
-        $courseroles = get_roles_used_in_context($context);
-
-        // Most likely case: role(s) were defined. get_roles() always returns an array or throws an exception.
-        if (is_array($roles)) {
-            foreach ($roles as $role) {
-                foreach ($courseroles as $courserole) {
-                    if ($courserole->shortname === $role) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
+    public function check_course($course, $triggerid) {
+            return trigger_response::trigger();
     }
 
     /**
@@ -101,60 +70,71 @@ class byrole extends base_automatic {
      * @throws \coding_exception
      */
     private function get_roles($triggerid) {
-        if (self::$roles === null) {
-            $roles = settings_manager::get_settings($triggerid, settings_type::TRIGGER)['roles'];
-            if ($roles === "") {
-                throw new \coding_exception('No Roles defined');
-            } else {
-                self::$roles = explode(",", $roles);
-            }
+        $roles = settings_manager::get_settings($triggerid, settings_type::TRIGGER)['roles'];
+        if ($roles === "") {
+            throw new \coding_exception('No Roles defined');
+        } else {
+            $roles = explode(",", $roles);
         }
-        return self::$roles;
+        return $roles;
     }
 
     /**
-     * Handles the current course
-     * There are three cases:
-     * 1. the course has no responsible user and no entry in the table the course should be inserted in the table,
-     * 2. the course has an entry in the table but has a responsible person, the course should be deleted from the table,
-     * 3. the course does not have a responsible person and is already in the table, it has to be checked how long
-     * the course is in the table and when the period of time is exceeded the course is marked as to delete.
-     * In case the course is not in the table and has a responsible person nothing has to be done.
-     * @param $hasuserincharge boolean
-     * @param $courseid integer
+     * Updates the current state of the courses
+     * There are two cases:
+     * 1. a course has no responsible user and no entry in the table, then the course should be inserted in the table,
+     * 2. a course has an entry in the table but has a responsible person, then the course should be deleted from the table,
      * @param $triggerid int id of the trigger instance
-     * @return boolean
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    private function handle_course($hasuserincharge, $courseid, $triggerid) {
+    private function update_courses($triggerid) {
         global $DB;
-        $intable = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $courseid));
+        $coursesintable = $DB->get_records('lifecycletrigger_byrole',
+            array('triggerid' => $triggerid), '', 'courseid');
+
+        $coursesintable = array_map(function($elem) {
+            return $elem->courseid;
+        }, $coursesintable);
+
+        list($insql, $inparams) = $DB->get_in_or_equal($this->get_roles($triggerid), SQL_PARAMS_NAMED);
+
+        $sql = "SELECT DISTINCT co.id
+            FROM {course} co JOIN {context} cxt ON 
+              co.id = cxt.instanceid AND
+              cxt.contextlevel = 50
+            LEFT JOIN {role_assignments} ra ON ra.contextid = cxt.id AND 
+              ra.roleid {$insql}
+            WHERE ra.id is null";
+        $courseswithoutteacher = $DB->get_records_sql($sql, $inparams);
+
+        $courseswithoutteacher = array_map(function($elem) {
+            return $elem->id;
+        }, $courseswithoutteacher);
+
         // First case of function description.
-        if ($intable === false && $hasuserincharge === false) {
+
+        $insertcourses = array_diff($courseswithoutteacher, $coursesintable);
+
+        $records = array();
+        foreach ($insertcourses as $courseid) {
             $dataobject = new \stdClass();
             $dataobject->courseid = $courseid;
-            $dataobject->timestamp = time();
-            $DB->insert_record('lifecycletrigger_byrole', $dataobject);
-            return false;
-            // Second case of function description.
-        } else if ($intable && $hasuserincharge) {
-            // Second case of function description.
-            $DB->delete_records('lifecycletrigger_byrole', array('courseid' => $courseid));
-            return false;
-            // Third case of the function description.
-        } else if ($intable && !$hasuserincharge) {
-            $delay = settings_manager::get_settings($triggerid, settings_type::TRIGGER)['delay'];
-            $timecreated = $DB->get_record('lifecycletrigger_byrole', array('courseid' => $courseid), 'timestamp');
-            $now = time();
-            $difference = $now - $timecreated->timestamp;
-            // Checks how long the course has been in the table and deletes the table entry and the course.
-            if ($difference > $delay) {
-                $DB->delete_records('lifecycletrigger_byrole', array('courseid' => $courseid));
-                return true;
-            }
+            $dataobject->triggerid = $triggerid;
+            $dataobject->timecreated = time();
+            $records [] = $dataobject;
         }
-        return false;
+        $DB->insert_records('lifecycletrigger_byrole', $records);
+
+        $deletecourses = array_diff($coursesintable, $courseswithoutteacher);
+
+        list($insqltrigger, $inparamstrigger) = $DB->get_in_or_equal($triggerid, SQL_PARAMS_NAMED);
+        list($insqlcourseids, $inparamscourseids) = $DB->get_in_or_equal($deletecourses, SQL_PARAMS_NAMED);
+
+
+        $DB->delete_records_select('lifecycletrigger_byrole',
+            "courseid {$insqlcourseids} AND triggerid {$insqltrigger}",
+            array_merge($inparamscourseids, $inparamstrigger));
     }
 
     /**
