@@ -25,7 +25,9 @@
  */
 namespace tool_lifecycle\trigger;
 
+use tool_lifecycle\manager\settings_manager;
 use tool_lifecycle\response\trigger_response;
+use tool_lifecycle\settings_type;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../lib.php');
@@ -33,23 +35,27 @@ require_once(__DIR__ . '/../lib.php');
 class byrole extends base_automatic {
     /** @var $roles array Saves all roles that are marked as in charge */
     protected static $roles = null;
+
     /**
      * Checks the given course object and returns next() when the course has a responsible person and trigger() in case
      * the course has no responsible person and has been noted without a responsible person for a determined period of time.
      * The time period is defined in the admin settings.
      * Excluding courses is not necessary.
      * @param $course
+     * @param $triggerid int id of the trigger instance
      * @return trigger_response one of next() or trigger()
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
-    public function check_course($course) {
+    public function check_course($course, $triggerid) {
         // Checks whether role is represented in course.
-        $hasuserincharge = $this->check_course_has_role($course->id);
+        $hasuserincharge = $this->check_course_has_role($course->id, $triggerid);
 
         // When an exception was thrown the course is not handled.
         if ($hasuserincharge === null) {
             return trigger_response::next();
         }
-        $trigger = $this->handle_course($hasuserincharge, $course->id);
+        $trigger = $this->handle_course($hasuserincharge, $course->id, $triggerid);
         if ($trigger) {
             return trigger_response::trigger();
         }
@@ -60,12 +66,13 @@ class byrole extends base_automatic {
      * Checks whether a specific course has a responsible person.
      * This check is based on roles. The responsible roles are fixed in the admin settings.
      * @param $courseid
+     * @param $triggerid int id of the trigger instance
      * @return boolean | null
      */
-    private function check_course_has_role($courseid) {
+    private function check_course_has_role($courseid, $triggerid) {
         // Gets roles from the settings.
         try {
-            $roles = $this->get_roles();
+            $roles = $this->get_roles($triggerid);
         } catch (\coding_exception $e) {
             // Writhe in Log without writing it repeatedly.
             return null;
@@ -89,12 +96,13 @@ class byrole extends base_automatic {
 
     /**
      * Return the roles that were set in the config.
+     * @param $triggerid int id of the trigger instance
      * @return array
      * @throws \coding_exception
      */
-    private function get_roles() {
+    private function get_roles($triggerid) {
         if (self::$roles === null) {
-            $roles = get_config('lifecycletrigger_byrole', 'roles');
+            $roles = settings_manager::get_settings($triggerid, settings_type::TRIGGER)['roles'];
             if ($roles === "") {
                 throw new \coding_exception('No Roles defined');
             } else {
@@ -114,9 +122,12 @@ class byrole extends base_automatic {
      * In case the course is not in the table and has a responsible person nothing has to be done.
      * @param $hasuserincharge boolean
      * @param $courseid integer
+     * @param $triggerid int id of the trigger instance
      * @return boolean
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
-    private function handle_course($hasuserincharge, $courseid) {
+    private function handle_course($hasuserincharge, $courseid, $triggerid) {
         global $DB;
         $intable = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $courseid));
         // First case of function description.
@@ -133,7 +144,7 @@ class byrole extends base_automatic {
             return false;
             // Third case of the function description.
         } else if ($intable && !$hasuserincharge) {
-            $delay = get_config('lifecycletrigger_byrole', 'delay');
+            $delay = settings_manager::get_settings($triggerid, settings_type::TRIGGER)['delay'];
             $timecreated = $DB->get_record('lifecycletrigger_byrole', array('courseid' => $courseid), 'timestamp');
             $now = time();
             $difference = $now - $timecreated->timestamp;
@@ -152,5 +163,36 @@ class byrole extends base_automatic {
      */
     public function get_subpluginname() {
         return 'byrole';
+    }
+
+    public function instance_settings() {
+        return array(
+            new instance_setting('roles', PARAM_SEQUENCE),
+            new instance_setting('delay', PARAM_INT),
+        );
+    }
+
+    public function extend_add_instance_form_definition($mform) {
+        global $DB;
+        $allroles = $DB->get_records('role', null, 'sortorder DESC');
+
+        $rolenames = array();
+        foreach ($allroles as $role) {
+            $rolenames[$role->id] = empty($role->name) ? $role->shortname : $role->name;
+        }
+        $options = array(
+            'multiple' => true,
+        );
+        $mform->addElement('autocomplete', 'roles',
+            get_string('responsibleroles', 'lifecycletrigger_byrole'),
+            $rolenames, $options);
+        $mform->addHelpButton('roles', 'responsibleroles', 'lifecycletrigger_byrole');
+        $mform->setType('roles', PARAM_SEQUENCE);
+        $mform->addRule('roles', 'Test', 'required');
+
+        $elementname = 'delay';
+        $mform->addElement('duration', $elementname, get_string('delay', 'lifecycletrigger_byrole'));
+        $mform->addHelpButton('delay', 'delay', 'lifecycletrigger_byrole');
+        $mform->setType($elementname, PARAM_INT);
     }
 }
