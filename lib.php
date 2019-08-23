@@ -100,10 +100,10 @@ class byrole extends base_automatic {
         list($insql, $inparams) = $DB->get_in_or_equal($this->get_roles($triggerid), SQL_PARAMS_NAMED);
 
         $sql = "SELECT DISTINCT co.id
-            FROM {course} co JOIN {context} cxt ON 
+            FROM {course} co JOIN {context} cxt ON
               co.id = cxt.instanceid AND
               cxt.contextlevel = 50
-            LEFT JOIN {role_assignments} ra ON ra.contextid = cxt.id AND 
+            LEFT JOIN {role_assignments} ra ON ra.contextid = cxt.id AND
               ra.roleid {$insql}
             WHERE ra.id is null";
         $courseswithoutteacher = $DB->get_records_sql($sql, $inparams);
@@ -130,7 +130,6 @@ class byrole extends base_automatic {
 
         list($insqltrigger, $inparamstrigger) = $DB->get_in_or_equal($triggerid, SQL_PARAMS_NAMED);
         list($insqlcourseids, $inparamscourseids) = $DB->get_in_or_equal($deletecourses, SQL_PARAMS_NAMED);
-
 
         $DB->delete_records_select('lifecycletrigger_byrole',
             "courseid {$insqlcourseids} AND triggerid {$insqltrigger}",
