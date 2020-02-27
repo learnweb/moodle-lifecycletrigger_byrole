@@ -21,11 +21,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use tool_lifecycle\entity\trigger_subplugin;
-use tool_lifecycle\entity\workflow;
-use tool_lifecycle\manager\settings_manager;
-use tool_lifecycle\manager\trigger_manager;
-use tool_lifecycle\manager\workflow_manager;
+use tool_lifecycle\local\entity\trigger_subplugin;
+use tool_lifecycle\local\entity\workflow;
+use tool_lifecycle\local\manager\settings_manager;
+use tool_lifecycle\local\manager\trigger_manager;
+use tool_lifecycle\local\manager\workflow_manager;
 use tool_lifecycle\settings_type;
 
 defined('MOODLE_INTERNAL') || die();
