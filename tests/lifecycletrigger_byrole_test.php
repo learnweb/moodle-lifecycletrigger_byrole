@@ -20,7 +20,7 @@
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace tool_lifecycle\trigger;
+namespace lifecycletrigger_byrole;
 
 use tool_lifecycle\processor;
 use tool_lifecycle\local\response\trigger_response;
@@ -36,7 +36,7 @@ require_once(__DIR__ . '/../lib.php');
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class lifecycletrigger_byrole_testcase extends \advanced_testcase {
+class lifecycletrigger_byrole_test extends \advanced_testcase {
 
     /**@var processor Instance of the lifecycle processor */
     private $processor;

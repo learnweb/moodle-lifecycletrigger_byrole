@@ -28,7 +28,6 @@ use tool_lifecycle\local\manager\trigger_manager;
 use tool_lifecycle\local\manager\workflow_manager;
 use tool_lifecycle\settings_type;
 
-defined('MOODLE_INTERNAL') || die();
 /**
  * Generator class for the lifecycletrigger_byrole.
  *
@@ -132,5 +131,4 @@ class lifecycletrigger_byrole_generator extends testing_data_generator {
         $data['rolefoundagain'] = $rolefoundagain;
         return $data;
     }
-
 }
