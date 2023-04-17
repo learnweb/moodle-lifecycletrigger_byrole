@@ -43,9 +43,8 @@ class lifecycletrigger_byrole_test extends \advanced_testcase {
 
     /**
      * Set up environment for phpunit test.
-     * @return mixed data for test
      */
-    protected function setUp() {
+    protected function setUp(): void {
         // Recommended in Moodle docs to always include CFG.
         global $CFG;
         $this->resetAfterTest(true);
