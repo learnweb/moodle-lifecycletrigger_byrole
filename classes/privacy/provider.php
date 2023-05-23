@@ -14,21 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace lifecycletrigger_byrole\privacy;
+
+use core_privacy\local\metadata\null_provider;
+
 /**
- * Lifecycle By Role Trigger
+ * Privacy subsystem implementation for lifecycletrigger_byrole.
  *
- * @package    lifecycletrigger_byrole
- * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     lifecycletrigger_byrole
+ * @copyright   WWU Münster
+ * @author      Nina Herrmann
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+class provider implements null_provider {
 
-defined('MOODLE_INTERNAL') || die;
-
-$plugin->version = 2023052300;
-$plugin->requires = 2020061500;
-$plugin->component = 'lifecycletrigger_byrole';
-$plugin->dependencies = array(
-        'tool_lifecycle' => 2022112400
-);
-$plugin->release = 'v4.2-r1';
-$plugin->maturity = MATURITY_STABLE;
+    /**
+     * Get the language string identifier with the component's language
+     * file to explain why this plugin stores no data.
+     *
+     * @return string the reason
+     */
+    public static function get_reason() : string {
+        return 'privacy:metadata';
+    }
+}
