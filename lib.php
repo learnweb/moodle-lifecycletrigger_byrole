@@ -15,8 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to identify the courses to be deleted since they miss a
- * a person in charge.
+ * Class to identify the courses to be deleted since they miss a person in charge.
  *
  * @package    lifecycletrigger_byrole
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
@@ -40,7 +39,7 @@ class byrole extends base_automatic {
      * Extends the where clause by a statement which selects all entries of the byrole table,
      * which reached a specific age. That means they are longer than the max delay time without a responsible person.
      * Further, we update the byrole table in this function to refresh the records of the stored courses.
-     * @param $triggerid
+     * @param int $triggerid
      * @return array
      * @throws \coding_exception
      * @throws \dml_exception
@@ -57,8 +56,8 @@ class byrole extends base_automatic {
 
     /**
      * Always triggers a course that got past the where clause.
-     * @param $course
-     * @param $triggerid int id of the trigger instance
+     * @param \stdClass $course
+     * @param int $triggerid id of the trigger instance
      * @return trigger_response one of next() or trigger()
      */
     public function check_course($course, $triggerid) {
@@ -67,7 +66,7 @@ class byrole extends base_automatic {
 
     /**
      * Return the roles that were set in the config.
-     * @param $triggerid int id of the trigger instance
+     * @param int $triggerid id of the trigger instance
      * @return array
      * @throws \coding_exception
      */
@@ -86,7 +85,7 @@ class byrole extends base_automatic {
      * There are two cases:
      * 1. a course has no responsible user and no entry in the table, then the course should be inserted in the table,
      * 2. a course has an entry in the table but has a responsible person, then the course should be deleted from the table,
-     * @param $triggerid int id of the trigger instance
+     * @param int $triggerid id of the trigger instance
      * @throws \coding_exception
      * @throws \dml_exception
      */
@@ -163,7 +162,7 @@ class byrole extends base_automatic {
 
     /**
      * Form for the instance.
-     * @param $mform
+     * @param \MoodleQuickForm $mform
      * @return void
      * @throws \coding_exception
      * @throws \dml_exception

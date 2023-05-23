@@ -38,7 +38,7 @@ require_once(__DIR__ . '/../lib.php');
  */
 class lifecycletrigger_byrole_test extends \advanced_testcase {
 
-    /**@var processor Instance of the lifecycle processor */
+    /** @var \tool_lifecycle\processor $processor Instance of the lifecycle processor */
     private $processor;
 
     /**
