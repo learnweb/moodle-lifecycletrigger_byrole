@@ -18,8 +18,7 @@
  * Class to identify the courses to be deleted since they miss a
  * a person in charge.
  *
- * @package    tool_lifecycle_trigger
- * @subpackage byrole
+ * @package    lifecycletrigger_byrole
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -32,6 +31,9 @@ use tool_lifecycle\settings_type;
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../lib.php');
 
+/**
+ * Class for processing courses if or if not roles are missing.
+ */
 class byrole extends base_automatic {
 
     /**
@@ -122,7 +124,7 @@ class byrole extends base_automatic {
             $dataobject->courseid = $courseid;
             $dataobject->triggerid = $triggerid;
             $dataobject->timecreated = time();
-            $records [] = $dataobject;
+            $records[] = $dataobject;
         }
         $DB->insert_records('lifecycletrigger_byrole', $records);
 
@@ -148,6 +150,10 @@ class byrole extends base_automatic {
         return 'byrole';
     }
 
+    /**
+     * Settings for the trigger.
+     * @return array|instance_setting[]
+     */
     public function instance_settings() {
         return array(
             new instance_setting('roles', PARAM_SEQUENCE),
@@ -155,6 +161,13 @@ class byrole extends base_automatic {
         );
     }
 
+    /**
+     * Form for the instance.
+     * @param $mform
+     * @return void
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
     public function extend_add_instance_form_definition($mform) {
         global $DB;
         $allroles = $DB->get_records('role', null, 'sortorder DESC');

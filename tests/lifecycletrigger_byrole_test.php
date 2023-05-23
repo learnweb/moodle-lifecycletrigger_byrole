@@ -16,11 +16,11 @@
 /**
  * The class contains a test script for the trigger subplugin byrole
  *
- * @package tool_lifecycle
+ * @package lifecycletrigger_byrole
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace tool_lifecycle\trigger;
+namespace lifecycletrigger_byrole;
 
 use tool_lifecycle\processor;
 use tool_lifecycle\local\response\trigger_response;
@@ -31,12 +31,12 @@ require_once(__DIR__ . '/../lib.php');
 /**
  * Class lifecycletrigger_byrole_testcase
  * @category   test
- * @package    tool_lifecycle
+ * @package    lifecycletrigger_byrole
  * @group      lifecycletrigger_byrole
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class lifecycletrigger_byrole_testcase extends \advanced_testcase {
+class lifecycletrigger_byrole_test extends \advanced_testcase {
 
     /**@var processor Instance of the lifecycle processor */
     private $processor;
@@ -45,15 +45,20 @@ class lifecycletrigger_byrole_testcase extends \advanced_testcase {
      * Set up environment for phpunit test.
      * @return mixed data for test
      */
-    protected function setUp() {
+    protected function setUp() :void {
         // Recommended in Moodle docs to always include CFG.
         global $CFG;
         $this->resetAfterTest(true);
 
         $this->processor = new processor();
     }
+
     /**
      * Test the locallib function for valid courses.
+     * @covers \tool_lifecycle\trigger\byrole
+     * @return void
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
     public function test_lib_validcourse() {
         global $DB;
@@ -67,8 +72,13 @@ class lifecycletrigger_byrole_testcase extends \advanced_testcase {
         $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['teachercourse']->id));
         $this->assertEquals(false, $exist);
     }
+
     /**
      * Test the locallib function for a invalid course that is recognized for the first time.
+     * @covers \tool_lifecycle\trigger\byrole
+     * @return void
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
     public function test_lib_norolecourse() {
         global $DB;
@@ -83,8 +93,13 @@ class lifecycletrigger_byrole_testcase extends \advanced_testcase {
         $this->assertEquals(true, $exist);
     }
 
+
     /**
      * Test the locallib function for a invalid course that is old enough to be triggered.
+     * @covers \tool_lifecycle\trigger\byrole
+     * @return void
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
     public function test_lib_norolefoundcourse() {
         global $DB;
@@ -103,8 +118,13 @@ class lifecycletrigger_byrole_testcase extends \advanced_testcase {
         $this->assertEquals(true, $exist);
     }
 
+
     /**
      * Test the locallib function for a course that was invalid and has a responsible person again.
+     * @covers \tool_lifecycle\trigger\byrole
+     * @return void
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
     public function test_lib_rolefoundagain() {
         global $DB;

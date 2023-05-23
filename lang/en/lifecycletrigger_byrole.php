@@ -16,8 +16,7 @@
 /**
  * Lang strings for site course trigger
  *
- * @package tool_lifecycle_trigger
- * @subpackage byrole
+ * @package lifecycletrigger_byrole
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,3 +25,4 @@ $string['delay'] = 'Days of delay for triggering';
 $string['delay_help'] = 'Days a course has to remain without any responsible person until the course is finally triggered';
 $string['responsibleroles'] = 'Responsible Roles in courses';
 $string['responsibleroles_help'] = 'Select the roles that have to be presented within a course. If one of the roles is present the course is not triggered.';
+$string['privacy:metadata'] = 'Does not store user specific data';

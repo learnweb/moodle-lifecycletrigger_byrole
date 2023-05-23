@@ -28,12 +28,11 @@ use tool_lifecycle\local\manager\trigger_manager;
 use tool_lifecycle\local\manager\workflow_manager;
 use tool_lifecycle\settings_type;
 
-defined('MOODLE_INTERNAL') || die();
 /**
  * Generator class for the lifecycletrigger_byrole.
  *
  * @category   test
- * @package    tool_lifecycle_trigger
+ * @package    lifecycletrigger_byrole
  * @subpackage byrole
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
