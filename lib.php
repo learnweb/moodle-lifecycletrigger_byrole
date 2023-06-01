@@ -80,6 +80,36 @@ class byrole extends base_automatic {
         return $roles;
     }
 
+    // MODIFICATION START
+    /**
+     * Compare category of course with a list of courses which have category enrolments.
+     *
+     * @param $caid int id of the category
+     * @param $listcatenrols array list of categories with category enrolments
+     * @return bool
+     */
+    public function checkParentCategoryEnrolment($caid, $listcatenrols) {
+        global $DB;
+
+        // Check if category is in the category list.
+        // Break check if category enrolment is found.
+        if (in_array($caid, $listcatenrols)) {
+            return true;
+        }
+
+        // Look for parent category.
+        $parent = $DB->get_field('course_categories', 'parent', ['id' => $caid]);
+
+        // Keep looking if there is a parent category.
+        if (0 != $parent) {
+            mtrace("Checking next level parent category " . $parent);
+            return $this->checkParentCategoryEnrolment($parent, $listcatenrols);
+        } else {
+            return false;
+        }
+    }
+    // MODIFICATION END
+
     /**
      * Updates the current state of the courses
      * There are two cases:
@@ -112,6 +142,45 @@ class byrole extends base_automatic {
         $courseswithoutteacher = array_map(function($elem) {
             return $elem->id;
         }, $courseswithoutteacher);
+
+        // MODIFICATION START
+        // Get categories with category enrolments.
+        $sqlcatenrols = "SELECT DISTINCT ca.id FROM {course_categories} ca JOIN {context} cxt
+            ON ca.id = cxt.instanceid AND cxt.contextlevel = 40
+            LEFT JOIN {role_assignments} ra ON ra.contextid = cxt.id
+            AND ra.roleid {$insql} WHERE ra.id IS NOT NULL
+            ORDER BY ca.id";
+        $listcatenrols = $DB->get_records_sql($sqlcatenrols, $inparams);
+        $listcatenrols = array_map(function($elem) {
+            return $elem->id;
+        }, $listcatenrols);
+
+        // Look for courses with category enrolment instances.
+        $sqlcatinstance = "SELECT DISTINCT co.id
+            FROM {course} co JOIN mdl_enrol en ON co.id = en.courseid
+            WHERE en.enrol='category' AND en.status = 0";
+        $courseswithcatenrol = $DB->get_records_sql($sqlcatinstance, $inparams);
+
+        $courseswithcatenrol = array_map(function($elem) {
+            return $elem->id;
+        }, $courseswithcatenrol);
+
+        // Check nested parent category enrolments.
+        $coursescatenrol = [];
+        foreach ($courseswithcatenrol as $course) {
+            // Look for category of course.
+            $category = $DB->get_field('course', 'category', ['id' => $course]);
+            $check = $this->checkParentCategoryEnrolment($category, $listcatenrols);
+            if (false !== $check) {
+                $coursescatenrol[] = $course;
+            }
+        }
+
+        // Remove courses with category enrolments from course list.
+        if (!empty($coursescatenrol)) {
+            $courseswithoutteacher = array_diff($courseswithoutteacher, $coursescatenrol);
+        }
+        // MODIFICATION END
 
         // Insert new entries without the specified role assignments.
 
