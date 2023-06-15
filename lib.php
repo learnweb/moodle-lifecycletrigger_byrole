@@ -104,8 +104,9 @@ class byrole extends base_automatic {
             FROM {course} co JOIN {context} cxt ON
               co.id = cxt.instanceid AND
               cxt.contextlevel = 50
-            LEFT JOIN {role_assignments} ra ON ra.contextid = cxt.id AND
-              ra.roleid {$insql}
+            LEFT JOIN (SELECT ccctx.id, ccctx.path FROM {context} ccctx
+              JOIN {role_assignments} ra ON ra.contextid = ccctx.id AND ra.roleid {$insql} AND ccctx.contextlevel IN (40, 50)
+            ) ra ON cxt.id = ra.id OR cxt.path LIKE {$DB->sql_concat("ra.path", "'/%'")}
             WHERE ra.id is null";
         $courseswithoutteacher = $DB->get_records_sql($sql, $inparams);
 
