@@ -100,14 +100,16 @@ class byrole extends base_automatic {
 
         list($insql, $inparams) = $DB->get_in_or_equal($this->get_roles($triggerid), SQL_PARAMS_NAMED);
 
-        $sql = "SELECT DISTINCT co.id
-            FROM {course} co JOIN {context} cxt ON
-              co.id = cxt.instanceid AND
-              cxt.contextlevel = 50
-            LEFT JOIN (SELECT ccctx.id, ccctx.path FROM {context} ccctx
-              JOIN {role_assignments} ra ON ra.contextid = ccctx.id AND ra.roleid {$insql} AND ccctx.contextlevel IN (40, 50)
-            ) ra ON cxt.id = ra.id OR cxt.path LIKE {$DB->sql_concat("ra.path", "'/%'")}
-            WHERE ra.id is null";
+        $sql = "SELECT c.id
+            FROM {course} c
+            WHERE c.id NOT IN (
+            SELECT e.courseid FROM {context} coursectx
+              JOIN {enrol} e ON coursectx.contextlevel = 50 AND e.courseid = coursectx.instanceid AND e.status = 0
+              JOIN {user_enrolments} ue ON e.id = ue.enrolid AND ue.status = 0
+              JOIN {context} ccctx ON ccctx.id = coursectx.id
+                        OR (ccctx.contextlevel = 40 AND coursectx.path LIKE {$DB->sql_concat("ccctx.path", "'/%'")})
+              JOIN {role_assignments} ra ON ra.contextid = ccctx.id AND ra.roleid {$insql} AND ra.userid = ue.userid
+            )";
         $courseswithoutteacher = $DB->get_records_sql($sql, $inparams);
 
         $courseswithoutteacher = array_map(function($elem) {
