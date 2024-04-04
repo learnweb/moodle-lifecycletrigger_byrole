@@ -36,7 +36,7 @@ require_once(__DIR__ . '/../lib.php');
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class lifecycletrigger_byrole_test extends \advanced_testcase {
+final class lifecycletrigger_byrole_test extends \advanced_testcase {
 
     /** @var \tool_lifecycle\processor $processor Instance of the lifecycle processor */
     private $processor;
@@ -45,7 +45,7 @@ class lifecycletrigger_byrole_test extends \advanced_testcase {
      * Set up environment for phpunit test.
      * @return mixed data for test
      */
-    protected function setUp() :void {
+    protected function setUp(): void {
         // Recommended in Moodle docs to always include CFG.
         global $CFG;
         $this->resetAfterTest(true);
@@ -60,7 +60,7 @@ class lifecycletrigger_byrole_test extends \advanced_testcase {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function test_lib_validcourse() {
+    public function test_lib_validcourse(): void {
         global $DB;
         $generator = $this->getDataGenerator()->get_plugin_generator('lifecycletrigger_byrole');
         $data = $generator->test_create_preparation();
@@ -69,7 +69,7 @@ class lifecycletrigger_byrole_test extends \advanced_testcase {
         foreach ($recordset as $element) {
             $this->assertNotEquals($data['teachercourse']->id, $element->id, 'The course should not have been triggered');
         }
-        $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['teachercourse']->id));
+        $exist = $DB->record_exists('lifecycletrigger_byrole', ['courseid' => $data['teachercourse']->id]);
         $this->assertEquals(false, $exist);
     }
 
@@ -80,7 +80,7 @@ class lifecycletrigger_byrole_test extends \advanced_testcase {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function test_lib_norolecourse() {
+    public function test_lib_norolecourse(): void {
         global $DB;
         $generator = $this->getDataGenerator()->get_plugin_generator('lifecycletrigger_byrole');
         $data = $generator->test_create_preparation();
@@ -89,7 +89,7 @@ class lifecycletrigger_byrole_test extends \advanced_testcase {
         foreach ($recordset as $element) {
             $this->assertNotEquals($data['norolecourse']->id, $element->id, 'The course should not have been triggered');
         }
-        $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['norolecourse']->id));
+        $exist = $DB->record_exists('lifecycletrigger_byrole', ['courseid' => $data['norolecourse']->id]);
         $this->assertEquals(true, $exist);
     }
 
@@ -101,7 +101,7 @@ class lifecycletrigger_byrole_test extends \advanced_testcase {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function test_lib_norolefoundcourse() {
+    public function test_lib_norolefoundcourse(): void {
         global $DB;
         $generator = $this->getDataGenerator()->get_plugin_generator('lifecycletrigger_byrole');
         $data = $generator->test_create_preparation();
@@ -114,7 +114,7 @@ class lifecycletrigger_byrole_test extends \advanced_testcase {
             }
         }
         $this->assertTrue($found, 'The course should have been triggered');
-        $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['norolefoundcourse']->id));
+        $exist = $DB->record_exists('lifecycletrigger_byrole', ['courseid' => $data['norolefoundcourse']->id]);
         $this->assertEquals(true, $exist);
     }
 
@@ -126,12 +126,12 @@ class lifecycletrigger_byrole_test extends \advanced_testcase {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function test_lib_rolefoundagain() {
+    public function test_lib_rolefoundagain(): void {
         global $DB;
         $generator = $this->getDataGenerator()->get_plugin_generator('lifecycletrigger_byrole');
         $data = $generator->test_create_preparation();
 
-        $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['rolefoundagain']->id));
+        $exist = $DB->record_exists('lifecycletrigger_byrole', ['courseid' => $data['rolefoundagain']->id]);
         $this->assertEquals(true, $exist);
 
         $recordset = $this->processor->get_course_recordset([$data['trigger']], []);
@@ -140,7 +140,7 @@ class lifecycletrigger_byrole_test extends \advanced_testcase {
             $this->assertNotEquals($data['rolefoundagain']->id, $element->id, 'The course should not have been triggered');
         }
 
-        $exist = $DB->record_exists('lifecycletrigger_byrole', array('courseid' => $data['rolefoundagain']->id));
+        $exist = $DB->record_exists('lifecycletrigger_byrole', ['courseid' => $data['rolefoundagain']->id]);
         $this->assertEquals(false, $exist);
     }
 }

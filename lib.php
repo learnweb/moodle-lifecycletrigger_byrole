@@ -51,7 +51,7 @@ class byrole extends base_automatic {
 
         $sql = "{course}.id in (SELECT DISTINCT courseid
               FROM {lifecycletrigger_byrole} WHERE triggerid = $triggerid AND timecreated < $maxtime)";
-        return array($sql, array());
+        return [$sql, []];
     }
 
     /**
@@ -92,7 +92,7 @@ class byrole extends base_automatic {
     private function update_courses($triggerid) {
         global $DB;
         $coursesintable = $DB->get_records('lifecycletrigger_byrole',
-            array('triggerid' => $triggerid), '', 'courseid');
+            ['triggerid' => $triggerid], '', 'courseid');
 
         $coursesintable = array_map(function($elem) {
             return $elem->courseid;
@@ -120,7 +120,7 @@ class byrole extends base_automatic {
 
         $insertcourses = array_diff($courseswithoutteacher, $coursesintable);
 
-        $records = array();
+        $records = [];
         foreach ($insertcourses as $courseid) {
             $dataobject = new \stdClass();
             $dataobject->courseid = $courseid;
@@ -157,10 +157,10 @@ class byrole extends base_automatic {
      * @return array|instance_setting[]
      */
     public function instance_settings() {
-        return array(
+        return [
             new instance_setting('roles', PARAM_SEQUENCE),
             new instance_setting('delay', PARAM_INT),
-        );
+        ];
     }
 
     /**
@@ -174,13 +174,13 @@ class byrole extends base_automatic {
         global $DB;
         $allroles = $DB->get_records('role', null, 'sortorder DESC');
 
-        $rolenames = array();
+        $rolenames = [];
         foreach ($allroles as $role) {
             $rolenames[$role->id] = empty($role->name) ? $role->shortname : $role->name;
         }
-        $options = array(
+        $options = [
             'multiple' => true,
-        );
+        ];
         $mform->addElement('autocomplete', 'roles',
             get_string('responsibleroles', 'lifecycletrigger_byrole'),
             $rolenames, $options);
