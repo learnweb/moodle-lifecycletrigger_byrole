@@ -93,7 +93,7 @@ jobs:
         database: ['mariadb', 'pgsql']
         exclude:
           - php: '8.0'
-            moodle-branch: 'main'
+            moodle-branch: 'MOODLE_404_STABLE'
           - php: '8.2'
             moodle-branch: 'MOODLE_401_STABLE'
         include:
