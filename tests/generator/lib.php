@@ -19,6 +19,7 @@
 
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package lifecycletrigger_byrole
  */
 
 use tool_lifecycle\local\entity\trigger_subplugin;
@@ -69,10 +70,10 @@ class lifecycletrigger_byrole_generator extends testing_data_generator {
     /**
      * Creates data to test the trigger subplugin lifecycletrigger_byrole.
      */
-    public function test_create_preparation () {
+    public function test_create_preparation() {
         global $DB;
         $generator = advanced_testcase::getDataGenerator();
-        $data = array();
+        $data = [];
 
         $data['trigger'] = $this->create_trigger_with_workflow();
 
@@ -82,13 +83,13 @@ class lifecycletrigger_byrole_generator extends testing_data_generator {
         $user3 = $generator->create_user();
 
         // Creates a course with one student one teacher.
-        $teachercourse = $generator->create_course(array('name' => 'teachercourse'));
+        $teachercourse = $generator->create_course(['name' => 'teachercourse']);
         $generator->enrol_user($user1->id, $teachercourse->id, 3);
         $generator->enrol_user($user2->id, $teachercourse->id, 5);
         $data['teachercourse'] = $teachercourse;
 
         // Creates a course with one student one manager.
-        $managercourse = $generator->create_course(array('name' => 'managercourse'));
+        $managercourse = $generator->create_course(['name' => 'managercourse']);
         $manager = $generator->create_user();
         $data['manager'] = $manager;
         $generator->enrol_user($user1->id, $managercourse->id, 1);
@@ -96,11 +97,11 @@ class lifecycletrigger_byrole_generator extends testing_data_generator {
         $data['managercourse'] = $managercourse;
 
         // Create a course without any role.
-        $norolecourse = $generator->create_course(array('name' => 'norolecourse'));
+        $norolecourse = $generator->create_course(['name' => 'norolecourse']);
         $data['norolecourse'] = $norolecourse;
 
         // Create a course already marked for deletion with one student and old.
-        $norolefoundcourse = $generator->create_course(array('name' => 'norolefoundcourse'));
+        $norolefoundcourse = $generator->create_course(['name' => 'norolefoundcourse']);
         $generator->enrol_user($user3->id, $norolefoundcourse->id, 5);
         $dataobject = new \stdClass();
         $dataobject->courseid = $norolefoundcourse->id;
@@ -110,7 +111,7 @@ class lifecycletrigger_byrole_generator extends testing_data_generator {
         $data['norolefoundcourse'] = $norolefoundcourse;
 
         // Create a course already marked for deletion with one student and really old.
-        $norolefoundcourse2 = $generator->create_course(array('name' => 'norolefoundcourse2'));
+        $norolefoundcourse2 = $generator->create_course(['name' => 'norolefoundcourse2']);
         $generator->enrol_user($user3->id, $norolefoundcourse2->id, 5);
         $dataobject = new \stdClass();
         $dataobject->courseid = $norolefoundcourse2->id;
@@ -120,7 +121,7 @@ class lifecycletrigger_byrole_generator extends testing_data_generator {
         $data['norolefoundcourse2'] = $norolefoundcourse2;
 
         // Create a course already marked for deletion with one student and one teacher and old.
-        $rolefoundagain = $generator->create_course(array('name' => 'rolefoundagain'));
+        $rolefoundagain = $generator->create_course(['name' => 'rolefoundagain']);
         $generator->enrol_user($user3->id, $rolefoundagain->id, 3);
         $generator->enrol_user($user2->id, $rolefoundagain->id, 5);
         $dataobject = new \stdClass();
