@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Lang strings for site course trigger
  *
@@ -20,6 +21,7 @@
  * @copyright  2017 Tobias Reischmann WWU Nina Herrmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 $string['delay'] = 'Days of delay for triggering';
 $string['delay_help'] = 'Days a course has to remain without any responsible person until the course is finally triggered';
 $string['pluginname'] = 'Delete courses by roles missing';
